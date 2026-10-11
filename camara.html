@@ -57,7 +57,9 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #btn-borrar-item { background: #6c2222; }
 
 #aviso-premium { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 9999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
-#indicador-seleccion { position: absolute; top: 20px; right: 60px; background: rgba(0,0,0,0.7); color: #28a745; padding: 5px 10px; border-radius: 12px; font-size: 12px; z-index: 5000; display: none; border: 1px solid #28a745; pointer-events: none; }
+
+/* Indicador flotante temporal de Zoom */
+#indicador-zoom { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.75); color: #28a745; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 6000; border: 1px solid #28a745; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
 #btn-color { position: absolute; top: 20px; right: 20px; width: 25px; height: 25px; border-radius: 50%; background-color: #00ff00; cursor: pointer; z-index: 5000; opacity: 0.4; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8); display: block; transition: opacity 0.3s; }
 #menu-colores { display: none; position: absolute; top: 55px; right: 20px; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 8px; z-index: 5001; flex-direction: column; gap: 12px; }
@@ -97,7 +99,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 
 <div id="contenedor-principal">
     <div id="aviso-premium">⚠️ Función reservada para modo Superusuario.</div>
-    <div id="indicador-seleccion">Objetivo: Efecto</div>
+    <div id="indicador-zoom">Zoom: 1.0x</div>
 
     <div id="panel-controles">
         <div id="btn-menu-circular" class="btn-flotante control-ocultable">
@@ -173,7 +175,7 @@ const panelControles = document.getElementById('panel-controles');
 const selectorVideo = document.getElementById('selector-video');
 const mensajeError = document.getElementById('mensaje-error');
 const avisoPremium = document.getElementById('aviso-premium');
-const indicadorSeleccion = document.getElementById('indicador-seleccion');
+const indicadorZoom = document.getElementById('indicador-zoom');
 const modal2fa = document.getElementById('modal-2fa');
 const btnAprobarDispositivo = document.getElementById('btn-aprobar-dispositivo');
 const btnRechazarDispositivo = document.getElementById('btn-rechazar-dispositivo');
@@ -205,15 +207,15 @@ let animacionGifId = null;
 let modoMoverActivo = false;
 let objetivoSeleccionado = 'efecto'; // 'efecto' o 'camara'
 
-// Transformaciones del Efecto
+// Escalas
 let posX = 0, posY = 0, escalaEfecto = 1;
-// Transformaciones de la Cámara
 let escalaCamara = 1;
 
 let arrastrando = false;
 let startX = 0, startY = 0;
 let distanciaInicialPellizco = 0;
 let ultimoToqueTiempo = 0;
+let temporizadorZoom = null;
 
 let mediaRecorder;
 let fragmentosVideo = [];
@@ -230,6 +232,21 @@ function mostrarAviso() {
     setTimeout(() => { avisoPremium.style.display = 'none'; }, 5000);
 }
 
+// Muestra temporalmente el valor del Zoom
+function mostrarIndicadorZoom() {
+    let valorTexto = objetivoSeleccionado === 'efecto' 
+        ? `Efecto: ${Math.round(escalaEfecto * 100)}%` 
+        : `Cámara: ${escalaCamara.toFixed(1)}x`;
+    
+    indicadorZoom.innerText = valorTexto;
+    indicadorZoom.style.opacity = '1';
+    
+    if (temporizadorZoom) clearTimeout(temporizadorZoom);
+    temporizadorZoom = setTimeout(() => {
+        indicadorZoom.style.opacity = '0';
+    }, 1200);
+}
+
 btnTerminos.addEventListener('click', (e) => { e.stopPropagation(); modalTerminos.style.display = 'flex'; });
 btnCerrarModal.addEventListener('click', () => { modalTerminos.style.display = 'none'; });
 
@@ -244,7 +261,6 @@ btnToggleInterfaz.addEventListener('click', (e) => {
     btnToggleInterfaz.classList.toggle('oculto', interfazOculta);
     btnColor.style.opacity = interfazOculta ? '0' : '0.4';
     btnColor.style.pointerEvents = interfazOculta ? 'none' : 'auto';
-    indicadorSeleccion.style.display = (modoMoverActivo && !interfazOculta) ? 'block' : 'none';
 
     if (interfazOculta) {
         selectorVideoWrapper.style.display = 'none';
@@ -331,15 +347,7 @@ btnMoverEfecto.addEventListener('click', (e) => {
     }
     modoMoverActivo = !modoMoverActivo;
     btnMoverEfecto.classList.toggle('activo', modoMoverActivo);
-    indicadorSeleccion.style.display = modoMoverActivo ? 'block' : 'none';
-    actualizarTextoIndicador();
 });
-
-function actualizarTextoIndicador() {
-    indicadorSeleccion.innerText = objetivoSeleccionado === 'efecto' ? 'Objetivo: Efecto' : 'Objetivo: Cámara';
-    indicadorSeleccion.style.borderColor = objetivoSeleccionado === 'efecto' ? '#28a745' : '#007bff';
-    indicadorSeleccion.style.color = objetivoSeleccionado === 'efecto' ? '#28a745' : '#007bff';
-}
 
 function aplicarTransformaciones() {
     canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${escalaEfecto})`;
@@ -362,15 +370,14 @@ function calcularDistanciaTactil(t1, t2) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-// Control Táctil y Selección por Doble Tap
+// Control Táctil
 canvas.addEventListener('touchstart', (e) => {
     if (!esSuperUsuario) return;
     
-    // Detección de doble tap para alternar objetivo
     const ahora = Date.now();
     if (e.touches.length === 1 && (ahora - ultimoToqueTiempo) < 300) {
         objetivoSeleccionado = objetivoSeleccionado === 'efecto' ? 'camara' : 'efecto';
-        actualizarTextoIndicador();
+        mostrarIndicadorZoom();
         e.preventDefault();
         return;
     }
@@ -405,6 +412,7 @@ canvas.addEventListener('touchmove', (e) => {
                 }
             }
             aplicarTransformaciones();
+            mostrarIndicadorZoom();
             distanciaInicialPellizco = distanciaActual;
         }
         e.preventDefault();
@@ -421,7 +429,7 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
-// Soporte Mouse para PC (Scroll para Zoom)
+// Zoom PC
 canvas.addEventListener('wheel', (e) => {
     if (!esSuperUsuario) return;
     e.preventDefault();
@@ -437,12 +445,13 @@ canvas.addEventListener('wheel', (e) => {
         }
     }
     aplicarTransformaciones();
+    mostrarIndicadorZoom();
 }, { passive: false });
 
 canvas.addEventListener('dblclick', () => {
     if (!esSuperUsuario) return;
     objetivoSeleccionado = objetivoSeleccionado === 'efecto' ? 'camara' : 'efecto';
-    actualizarTextoIndicador();
+    mostrarIndicadorZoom();
 });
 
 canvas.addEventListener('mousedown', (e) => {
@@ -462,7 +471,7 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => { arrastrando = false; });
 
-// Grabación Unificada (Video Cámara + Efecto + Mezcla de Audio)
+// Grabación Unificada
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
         let nombreSugerido = `AR_Chrome_${Date.now()}`;
