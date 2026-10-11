@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-<title>Estudio AR: Versión Comercial Blindada</title>
+<title>AR-Chrome</title>
 <style>
-/* Reset absoluto para cubrir el 100% de la pantalla y ocultar desbordamientos */
+/* Reset absoluto para cubrir el 100% de la pantalla */
 html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height: 100vh; overflow: hidden; font-family: sans-serif; -webkit-touch-callout: none; }
 #contenedor-principal { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; }
 
@@ -71,7 +71,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 </head>
 <body>
 <div id="pantalla-inicio">
-    <h2 style="color: white; margin-bottom: 5px;">Estudio AR</h2>
+    <h2 style="color: white; margin-bottom: 5px;">AR-Chrome</h2>
     <p style="color: #aaa; font-size: 13px; margin-top: 0;">Acceso de Superusuario y Control Maestro</p>
     <input type="email" id="input-email-usuario" class="input-login" placeholder="correo@gmail.com" value="adr8617@gmail.com">
     <button id="btn-iniciar">TOCA AQUÍ PARA INICIAR</button>
@@ -90,7 +90,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 <div id="modal-terminos">
     <div id="contenido-modal">
         <h3>📄 Términos, Condiciones y Privacidad</h3>
-        <p><strong>Privacidad de Datos:</strong> Estudio AR utiliza la cámara de tu dispositivo exclusivamente en tiempo real para superponer los efectos visuales seleccionados. 
+        <p><strong>Privacidad de Datos:</strong> AR-Chrome utiliza la cámara de tu dispositivo exclusivamente en tiempo real para superponer los efectos visuales seleccionados. 
         <br><br><strong>Seguridad:</strong> Ninguna imagen, video ni flujo de cámara es grabado ni transmitido a servidores externos. Todo el procesamiento ocurre localmente.
         <br><br><strong>Suscripción:</strong> Funciones avanzadas por $30 MXN bimestrales gestionados mediante Google Play Billing.</p>
         <button id="btn-cerrar-modal">Entendido</button>
@@ -139,7 +139,7 @@ const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
 
 function obtenerDispositivoId() {
-    let devId = localStorage.getItem('estudio_ar_device_id');I 
+    let devId = localStorage.getItem('estudio_ar_device_id');
     if (!devId) {
         devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
         localStorage.setItem('estudio_ar_device_id', devId);
@@ -406,10 +406,10 @@ canvas.addEventListener('wheel', (e) => {
     }
 }, { passive: false });
 
-// --- GRABACIÓN UNIFICADA DE VIDEO Y AUDIO MÚLTIPLE (MICRÓFONO + imagen chrome) ---
+// --- GRABACIÓN UNIFICADA DE VIDEO Y AUDIO (MICRÓFONO + LORONA/EFECTO) ---
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
-        let nombreSugerido = `EstudioAR_${Date.now()}`;
+        let nombreSugerido = `AR_Chrome_${Date.now()}`;
         nombreArchivoGrabado = prompt("Escribe el nombre para tu video grabado:", nombreSugerido);
         
         if (!nombreArchivoGrabado || nombreArchivoGrabado.trim() === "") {
@@ -422,7 +422,6 @@ btnGrabar.addEventListener('click', () => {
 
         fragmentosVideo = [];
         
-        // 1. Unificar los videos en un Canvas temporal
         const canvasGrabacion = document.createElement('canvas');
         canvasGrabacion.width = videoCamara.videoWidth || 1280;
         canvasGrabacion.height = videoCamara.videoHeight || 720;
@@ -440,31 +439,27 @@ btnGrabar.addEventListener('click', () => {
         const streamCanvasUnificado = canvasGrabacion.captureStream(30);
         const tracksCombinados = [...streamCanvasUnificado.getVideoTracks()];
 
-        // 2. Mezclar los audios usando AudioContext (Micrófono + Video multimedia)
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const dest = audioCtx.createMediaStreamDestination();
 
-            // Audio de la cámara (Micrófono)
             const streamCamara = videoCamara.srcObject;
             if (streamCamara && streamCamara.getAudioTracks().length > 0) {
                 const fuenteMic = audioCtx.createMediaStreamSource(streamCamara);
                 fuenteMic.connect(dest);
             }
 
-            // Audio del video multimedia flotante (La imagen chrome)
             if (tipoActual === 'video' && !videoMultimedia.paused) {
                 const fuenteVideo = audioCtx.createMediaElementSource(videoMultimedia);
                 fuenteVideo.connect(dest);
-                fuenteVideo.connect(audioCtx.destination); // Para que se siga escuchando en las bocinas al grabar
+                fuenteVideo.connect(audioCtx.destination);
             }
 
-            // Agregar la pista de audio mezclada a la grabación
             if (dest.stream.getAudioTracks().length > 0) {
                 tracksCombinados.push(dest.stream.getAudioTracks()[0]);
             }
         } catch (err) {
-            console.warn("No se pudo mezclar el audio mediante AudioContext:", err);
+            console.warn("No se pudo mezclar audio:", err);
         }
 
         const streamFinal = new MediaStream(tracksCombinados);
@@ -487,7 +482,7 @@ btnGrabar.addEventListener('click', () => {
             setTimeout(() => { 
                 document.body.removeChild(a); 
                 window.URL.revokeObjectURL(urlBlob); 
-                alert(`¡Video guardado con éxito con video y sonido integrados!`);
+                alert(`¡Video guardado con éxito!`);
             }, 100);
 
             if (interfazOculta) {
@@ -606,11 +601,11 @@ async function iniciarCamara(deviceIdEspecifico = null) {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: restriccionesVideo, audio: true });
         videoCamara.srcObject = stream;
-        videoCamara.play();
+        await videoCamara.play();
     } catch (err) {
         const streamFallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         videoCamara.srcObject = streamFallback;
-        videoCamara.play();
+        await videoCamara.play();
     }
 }
 
@@ -640,22 +635,20 @@ async function lanzarApp() {
         await detectarDispositivosCamara();
         await iniciarCamara();
         
-        videoCamara.onloadedmetadata = () => {
-            pantallaInicio.style.display = 'none';
-            panelControles.style.display = 'flex';
-            
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(() => {});
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
+        pantallaInicio.style.display = 'none';
+        panelControles.style.display = 'flex';
+        
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(() => {});
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
 
-            actualizarSelect();
-            cargarArchivoSeleccionado();
-        };
+        actualizarSelect();
+        cargarArchivoSeleccionado();
     } catch (err) {
-        mensajeError.innerText = "Error: No se pudo acceder a la cámara o permisos denegados.";
+        mensajeError.innerText = "Error: Permisos de cámara denegados o dispositivo no compatible.";
     }
 }
 
@@ -704,7 +697,7 @@ function procesarChromaKeyGIF() {
             let r = frame.data[i * 4 + 0], g = frame.data[i * 4 + 1], b = frame.data[i * 4 + 2];
             if (colorFiltro === 'verde') { if (g > 90 && r < 110 && b < 110) frame.data[i * 4 + 3] = 0; } 
             else if (colorFiltro === 'azul' && esSuperUsuario) { if (b > 90 && r < 110 && g < 110) frame.data[i * 4 + 3] = 0; } 
-            else if (colorFILtro === 'negro' && esSuperUsuario) { if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; }
+            else if (colorFiltro === 'negro' && esSuperUsuario) { if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; }
         }
         ctx.putImageData(frame, 0, 0);
         animacionGifId = requestAnimationFrame(procesarChromaKeyGIF);
