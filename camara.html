@@ -139,7 +139,7 @@ const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
 
 function obtenerDispositivoId() {
-    let devId = localStorage.getItem('estudio_ar_device_id');
+    let devId = localStorage.getItem('estudio_ar_device_id');I 
     if (!devId) {
         devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
         localStorage.setItem('estudio_ar_device_id', devId);
@@ -147,7 +147,7 @@ function obtenerDispositivoId() {
     return devId;
 }
 
-const MULTIMEDIA_DEFAULT = [{ nombre: "Video Chroma: La Llorona", archivo: "llorona.mp4", tipo: "video" }];
+const MULTIMEDIA_DEFAULT = [{ nombre: "Video Chroma: Espiritu", archivo: "Chrome.mp4", tipo: "video" }];
 
 function obtenerBaseDatos() {
     const guardado = localStorage.getItem('efectos_ar_db');
@@ -406,7 +406,7 @@ canvas.addEventListener('wheel', (e) => {
     }
 }, { passive: false });
 
-// --- GRABACIÓN UNIFICADA DE VIDEO Y AUDIO MÚLTIPLE (MICRÓFONO + LLORONA) ---
+// --- GRABACIÓN UNIFICADA DE VIDEO Y AUDIO MÚLTIPLE (MICRÓFONO + imagen chrome) ---
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
         let nombreSugerido = `EstudioAR_${Date.now()}`;
@@ -452,7 +452,7 @@ btnGrabar.addEventListener('click', () => {
                 fuenteMic.connect(dest);
             }
 
-            // Audio del video multimedia flotante (La Llorona)
+            // Audio del video multimedia flotante (La imagen chrome)
             if (tipoActual === 'video' && !videoMultimedia.paused) {
                 const fuenteVideo = audioCtx.createMediaElementSource(videoMultimedia);
                 fuenteVideo.connect(dest);
