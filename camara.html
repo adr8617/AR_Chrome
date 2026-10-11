@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>AR-Chrome</title>
 <style>
-/* Reset absoluto para cubrir el 100% de la pantalla */
 html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height: 100vh; overflow: hidden; font-family: sans-serif; -webkit-touch-callout: none; }
 #contenedor-principal { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; }
 
@@ -58,12 +57,13 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #btn-borrar-item { background: #6c2222; }
 
 #aviso-premium { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 9999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
+#indicador-seleccion { position: absolute; top: 20px; right: 60px; background: rgba(0,0,0,0.7); color: #28a745; padding: 5px 10px; border-radius: 12px; font-size: 12px; z-index: 5000; display: none; border: 1px solid #28a745; pointer-events: none; }
 
 #btn-color { position: absolute; top: 20px; right: 20px; width: 25px; height: 25px; border-radius: 50%; background-color: #00ff00; cursor: pointer; z-index: 5000; opacity: 0.4; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8); display: block; transition: opacity 0.3s; }
 #menu-colores { display: none; position: absolute; top: 55px; right: 20px; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 8px; z-index: 5001; flex-direction: column; gap: 12px; }
 .opcion-color { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 
-#video-camara { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; background-color: #000; }
+#video-camara { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; background-color: #000; transition: transform 0.1s ease-out; }
 #video-multimedia, #imagen-fuente-oculta { display: none; }
 #capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; display: flex; justify-content: center; align-items: center; }
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
@@ -81,24 +81,23 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 <div id="modal-2fa">
     <div id="contenido-2fa">
         <h3>🚨 Alerta de Seguridad</h3>
-        <p>Se ha intentado activar el modo Superusuario desde un <strong>dispositivo o IP no registrado</strong>.<br><br>¿Autorizas el acceso para este nuevo teléfono?</p>
-        <button id="btn-aprobar-dispositivo" class="btn-2fa">Sí, soy yo (Autorizar)</button>
+        <p>Se ha intentado activar el modo Superusuario desde un <strong>dispositivo no registrado</strong>.<br><br>¿Autorizas el acceso para este teléfono?</p>
+        <button id="btn-aprobar-dispositivo" class="btn-2fa">Sí, autorizar</button>
         <button id="btn-rechazar-dispositivo" class="btn-2fa">Bloquear</button>
     </div>
 </div>
 
 <div id="modal-terminos">
     <div id="contenido-modal">
-        <h3>📄 Términos, Condiciones y Privacidad</h3>
-        <p><strong>Privacidad de Datos:</strong> AR-Chrome utiliza la cámara de tu dispositivo exclusivamente en tiempo real para superponer los efectos visuales seleccionados. 
-        <br><br><strong>Seguridad:</strong> Ninguna imagen, video ni flujo de cámara es grabado ni transmitido a servidores externos. Todo el procesamiento ocurre localmente.
-        <br><br><strong>Suscripción:</strong> Funciones avanzadas por $30 MXN bimestrales gestionados mediante Google Play Billing.</p>
+        <h3>📄 Términos y Privacidad</h3>
+        <p><strong>Privacidad:</strong> AR-Chrome procesa el flujo de cámara en tiempo real en tu dispositivo sin transmitir datos a servidores externos.</p>
         <button id="btn-cerrar-modal">Entendido</button>
     </div>
 </div>
 
 <div id="contenedor-principal">
-    <div id="aviso-premium">⚠️ Función bloqueada. Desbloquea movimiento, zoom y croma completo suscribiéndote por solo $30 bimestrales.</div>
+    <div id="aviso-premium">⚠️ Función reservada para modo Superusuario.</div>
+    <div id="indicador-seleccion">Objetivo: Efecto</div>
 
     <div id="panel-controles">
         <div id="btn-menu-circular" class="btn-flotante control-ocultable">
@@ -121,8 +120,8 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     <div id="btn-color"></div>
     <div id="menu-colores">
         <div class="opcion-color" data-color="verde" style="background-color: #00ff00;" title="Verde"></div>
-        <div class="opcion-color" data-color="azul" style="background-color: #0000ff;" title="Azul (Premium)"></div>
-        <div class="opcion-color" data-color="negro" style="background-color: #111; border: 1px solid #777;" title="Negro (Premium)"></div>
+        <div class="opcion-color" data-color="azul" style="background-color: #0000ff;" title="Azul"></div>
+        <div class="opcion-color" data-color="negro" style="background-color: #111; border: 1px solid #777;" title="Negro"></div>
     </div>
 
     <video id="video-camara" autoplay playsinline muted></video>
@@ -147,7 +146,7 @@ function obtenerDispositivoId() {
     return devId;
 }
 
-const MULTIMEDIA_DEFAULT = [{ nombre: "Video Chroma: Espiritu", archivo: "Chrome.mp4", tipo: "video" }];
+const MULTIMEDIA_DEFAULT = [{ nombre: "Efecto Croma", archivo: "Chrome.mp4", tipo: "video" }];
 
 function obtenerBaseDatos() {
     const guardado = localStorage.getItem('efectos_ar_db');
@@ -174,6 +173,7 @@ const panelControles = document.getElementById('panel-controles');
 const selectorVideo = document.getElementById('selector-video');
 const mensajeError = document.getElementById('mensaje-error');
 const avisoPremium = document.getElementById('aviso-premium');
+const indicadorSeleccion = document.getElementById('indicador-seleccion');
 const modal2fa = document.getElementById('modal-2fa');
 const btnAprobarDispositivo = document.getElementById('btn-aprobar-dispositivo');
 const btnRechazarDispositivo = document.getElementById('btn-rechazar-dispositivo');
@@ -203,10 +203,17 @@ let tipoActual = 'video';
 let animacionGifId = null;
 
 let modoMoverActivo = false;
-let posX = 0, posY = 0, escalaActual = 1;
+let objetivoSeleccionado = 'efecto'; // 'efecto' o 'camara'
+
+// Transformaciones del Efecto
+let posX = 0, posY = 0, escalaEfecto = 1;
+// Transformaciones de la Cámara
+let escalaCamara = 1;
+
 let arrastrando = false;
 let startX = 0, startY = 0;
 let distanciaInicialPellizco = 0;
+let ultimoToqueTiempo = 0;
 
 let mediaRecorder;
 let fragmentosVideo = [];
@@ -216,6 +223,7 @@ let nombreArchivoGrabado = "";
 let listaCamaras = [];
 let indiceCamaraActual = 0;
 let interfazOculta = false;
+let trackCamaraActual = null;
 
 function mostrarAviso() {
     avisoPremium.style.display = 'block';
@@ -236,7 +244,8 @@ btnToggleInterfaz.addEventListener('click', (e) => {
     btnToggleInterfaz.classList.toggle('oculto', interfazOculta);
     btnColor.style.opacity = interfazOculta ? '0' : '0.4';
     btnColor.style.pointerEvents = interfazOculta ? 'none' : 'auto';
-    
+    indicadorSeleccion.style.display = (modoMoverActivo && !interfazOculta) ? 'block' : 'none';
+
     if (interfazOculta) {
         selectorVideoWrapper.style.display = 'none';
         menuColores.style.display = 'none';
@@ -302,7 +311,7 @@ inputArchivoOculto.addEventListener('change', (e) => {
     const nombreArchivo = archivo.name;
     const esGif = nombreArchivo.toLowerCase().endsWith('.gif') || archivo.type === 'image/gif';
     const tipoDetectado = esGif ? 'gif' : 'video';
-    let descripcionCustom = prompt("Escribe el nombre descriptivo para este efecto:", nombreArchivo);
+    let descripcionCustom = prompt("Escribe el nombre descriptivo:", nombreArchivo);
     if (!descripcionCustom || descripcionCustom.trim() === "") descripcionCustom = nombreArchivo;
 
     const urlLocal = URL.createObjectURL(archivo);
@@ -322,10 +331,29 @@ btnMoverEfecto.addEventListener('click', (e) => {
     }
     modoMoverActivo = !modoMoverActivo;
     btnMoverEfecto.classList.toggle('activo', modoMoverActivo);
+    indicadorSeleccion.style.display = modoMoverActivo ? 'block' : 'none';
+    actualizarTextoIndicador();
 });
 
-function aplicarTransformacion() {
-    canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${escalaActual})`;
+function actualizarTextoIndicador() {
+    indicadorSeleccion.innerText = objetivoSeleccionado === 'efecto' ? 'Objetivo: Efecto' : 'Objetivo: Cámara';
+    indicadorSeleccion.style.borderColor = objetivoSeleccionado === 'efecto' ? '#28a745' : '#007bff';
+    indicadorSeleccion.style.color = objetivoSeleccionado === 'efecto' ? '#28a745' : '#007bff';
+}
+
+function aplicarTransformaciones() {
+    canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${escalaEfecto})`;
+    videoCamara.style.transform = `scale(${escalaCamara})`;
+}
+
+function aplicarZoomHardwareCamara(zoomVal) {
+    if (trackCamaraActual && typeof trackCamaraActual.getCapabilities === 'function') {
+        const caps = trackCamaraActual.getCapabilities();
+        if (caps.zoom) {
+            let targetZoom = Math.min(Math.max(zoomVal, caps.zoom.min), caps.zoom.max);
+            trackCamaraActual.applyConstraints({ advanced: [{ zoom: targetZoom }] }).catch(() => {});
+        }
+    }
 }
 
 function calcularDistanciaTactil(t1, t2) {
@@ -334,13 +362,25 @@ function calcularDistanciaTactil(t1, t2) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
+// Control Táctil y Selección por Doble Tap
 canvas.addEventListener('touchstart', (e) => {
     if (!esSuperUsuario) return;
+    
+    // Detección de doble tap para alternar objetivo
+    const ahora = Date.now();
+    if (e.touches.length === 1 && (ahora - ultimoToqueTiempo) < 300) {
+        objetivoSeleccionado = objetivoSeleccionado === 'efecto' ? 'camara' : 'efecto';
+        actualizarTextoIndicador();
+        e.preventDefault();
+        return;
+    }
+    ultimoToqueTiempo = ahora;
+
     if (e.touches.length === 2) {
         distanciaInicialPellizco = calcularDistanciaTactil(e.touches[0], e.touches[1]);
         arrastrando = false;
         e.preventDefault();
-    } else if (e.touches.length === 1 && modoMoverActivo) {
+    } else if (e.touches.length === 1 && modoMoverActivo && objetivoSeleccionado === 'efecto') {
         arrastrando = true;
         startX = e.touches[0].clientX - posX;
         startY = e.touches[0].clientY - posY;
@@ -354,18 +394,24 @@ canvas.addEventListener('touchmove', (e) => {
         const distanciaActual = calcularDistanciaTactil(e.touches[0], e.touches[1]);
         if (distanciaInicialPellizco > 0) {
             let factor = distanciaActual / distanciaInicialPellizco;
-            let nuevaEscala = escalaActual * factor;
-            if (nuevaEscala >= 0.3 && nuevaEscala <= 3.5) {
-                escalaActual = nuevaEscala;
-                aplicarTransformacion();
+            if (objetivoSeleccionado === 'efecto') {
+                let nuevaEscala = escalaEfecto * factor;
+                if (nuevaEscala >= 0.3 && nuevaEscala <= 3.5) escalaEfecto = nuevaEscala;
+            } else {
+                let nuevaEscala = escalaCamara * factor;
+                if (nuevaEscala >= 1.0 && nuevaEscala <= 4.0) {
+                    escalaCamara = nuevaEscala;
+                    aplicarZoomHardwareCamara(escalaCamara);
+                }
             }
+            aplicarTransformaciones();
             distanciaInicialPellizco = distanciaActual;
         }
         e.preventDefault();
-    } else if (e.touches.length === 1 && arrastrando && modoMoverActivo) {
+    } else if (e.touches.length === 1 && arrastrando && modoMoverActivo && objetivoSeleccionado === 'efecto') {
         posX = e.touches[0].clientX - startX;
         posY = e.touches[0].clientY - startY;
-        aplicarTransformacion();
+        aplicarTransformaciones();
         e.preventDefault();
     }
 }, { passive: false });
@@ -375,8 +421,32 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
+// Soporte Mouse para PC (Scroll para Zoom)
+canvas.addEventListener('wheel', (e) => {
+    if (!esSuperUsuario) return;
+    e.preventDefault();
+    let delta = e.deltaY < 0 ? 0.08 : -0.08;
+    if (objetivoSeleccionado === 'efecto') {
+        let nuevaEscala = escalaEfecto + delta;
+        if (nuevaEscala >= 0.3 && nuevaEscala <= 3.5) escalaEfecto = nuevaEscala;
+    } else {
+        let nuevaEscala = escalaCamara + delta;
+        if (nuevaEscala >= 1.0 && nuevaEscala <= 4.0) {
+            escalaCamara = nuevaEscala;
+            aplicarZoomHardwareCamara(escalaCamara);
+        }
+    }
+    aplicarTransformaciones();
+}, { passive: false });
+
+canvas.addEventListener('dblclick', () => {
+    if (!esSuperUsuario) return;
+    objetivoSeleccionado = objetivoSeleccionado === 'efecto' ? 'camara' : 'efecto';
+    actualizarTextoIndicador();
+});
+
 canvas.addEventListener('mousedown', (e) => {
-    if (!modoMoverActivo || !esSuperUsuario) return;
+    if (!modoMoverActivo || !esSuperUsuario || objetivoSeleccionado !== 'efecto') return;
     arrastrando = true;
     startX = e.clientX - posX;
     startY = e.clientY - posY;
@@ -384,44 +454,24 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 window.addEventListener('mousemove', (e) => {
-    if (!arrastrando || !modoMoverActivo || !esSuperUsuario) return;
+    if (!arrastrando || !modoMoverActivo || !esSuperUsuario || objetivoSeleccionado !== 'efecto') return;
     posX = e.clientX - startX;
     posY = e.clientY - startY;
-    aplicarTransformacion();
+    aplicarTransformaciones();
 });
 
 window.addEventListener('mouseup', () => { arrastrando = false; });
 
-canvas.addEventListener('wheel', (e) => {
-    if (!esSuperUsuario) {
-        mostrarAviso();
-        return;
-    }
-    e.preventDefault();
-    let delta = e.deltaY < 0 ? 0.1 : -0.1;
-    let nuevaEscala = escalaActual + delta;
-    if (nuevaEscala >= 0.3 && nuevaEscala <= 3.5) {
-        escalaActual = nuevaEscala;
-        aplicarTransformacion();
-    }
-}, { passive: false });
-
-// --- GRABACIÓN UNIFICADA DE VIDEO Y AUDIO (MICRÓFONO + LORONA/EFECTO) ---
+// Grabación Unificada (Video Cámara + Efecto + Mezcla de Audio)
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
         let nombreSugerido = `AR_Chrome_${Date.now()}`;
-        nombreArchivoGrabado = prompt("Escribe el nombre para tu video grabado:", nombreSugerido);
-        
-        if (!nombreArchivoGrabado || nombreArchivoGrabado.trim() === "") {
-            return; 
-        }
+        nombreArchivoGrabado = prompt("Escribe el nombre para tu video:", nombreSugerido);
+        if (!nombreArchivoGrabado || nombreArchivoGrabado.trim() === "") return;
 
-        if (!interfazOculta) {
-            btnToggleInterfaz.click();
-        }
+        if (!interfazOculta) btnToggleInterfaz.click();
 
         fragmentosVideo = [];
-        
         const canvasGrabacion = document.createElement('canvas');
         canvasGrabacion.width = videoCamara.videoWidth || 1280;
         canvasGrabacion.height = videoCamara.videoHeight || 720;
@@ -458,9 +508,7 @@ btnGrabar.addEventListener('click', () => {
             if (dest.stream.getAudioTracks().length > 0) {
                 tracksCombinados.push(dest.stream.getAudioTracks()[0]);
             }
-        } catch (err) {
-            console.warn("No se pudo mezclar audio:", err);
-        }
+        } catch (err) {}
 
         const streamFinal = new MediaStream(tracksCombinados);
 
@@ -485,9 +533,7 @@ btnGrabar.addEventListener('click', () => {
                 alert(`¡Video guardado con éxito!`);
             }, 100);
 
-            if (interfazOculta) {
-                btnToggleInterfaz.click();
-            }
+            if (interfazOculta) btnToggleInterfaz.click();
         };
 
         mediaRecorder.start();
@@ -495,9 +541,7 @@ btnGrabar.addEventListener('click', () => {
         btnGrabar.classList.add('grabando');
 
     } else { 
-        if (mediaRecorder) { 
-            mediaRecorder.stop(); 
-        }
+        if (mediaRecorder) mediaRecorder.stop(); 
         estaGrabando = false; 
         btnGrabar.classList.remove('grabando'); 
     }
@@ -537,9 +581,7 @@ function cargarArchivoSeleccionado() {
         videoMultimedia.pause();
         btnColor.style.display = interfazOculta ? 'none' : 'block';
         imagenFuenteOculta.src = archivoUrl;
-        imagenFuenteOculta.onload = () => {
-            procesarChromaKeyGIF();
-        };
+        imagenFuenteOculta.onload = () => { procesarChromaKeyGIF(); };
     } else {
         imagenFuenteOculta.src = "";
         btnColor.style.display = interfazOculta ? 'none' : 'block';
@@ -590,21 +632,19 @@ async function iniciarCamara(deviceIdEspecifico = null) {
         videoCamara.srcObject.getTracks().forEach(track => track.stop());
     }
 
-    let restriccionesVideo;
-    if (deviceIdEspecifico) {
-        restriccionesVideo = { deviceId: { exact: deviceIdEspecifico }, width: { ideal: 1920 }, height: { ideal: 1080 } };
-    } else {
-        let modoActualCamara = listaCamaras.length > 0 ? (indiceCamaraActual % 2 === 0 ? "user" : "environment") : "user";
-        restriccionesVideo = { facingMode: modoActualCamara, width: { ideal: 1920 }, height: { ideal: 1080 } };
-    }
+    let restriccionesVideo = deviceIdEspecifico 
+        ? { deviceId: { exact: deviceIdEspecifico }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+        : { facingMode: "user", width: { ideal: 1920 }, height: { ideal: 1080 } };
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: restriccionesVideo, audio: true });
         videoCamara.srcObject = stream;
+        trackCamaraActual = stream.getVideoTracks()[0];
         await videoCamara.play();
     } catch (err) {
         const streamFallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         videoCamara.srcObject = streamFallback;
+        trackCamaraActual = streamFallback.getVideoTracks()[0];
         await videoCamara.play();
     }
 }
@@ -613,9 +653,7 @@ async function detectarDispositivosCamara() {
     try {
         const dispositivos = await navigator.mediaDevices.enumerateDevices();
         listaCamaras = dispositivos.filter(d => d.kind === 'videoinput');
-    } catch (e) {
-        console.error("Error al listar cámaras:", e);
-    }
+    } catch (e) {}
 }
 
 btnCambiarCamara.addEventListener('click', async () => {
@@ -637,30 +675,12 @@ async function lanzarApp() {
         
         pantallaInicio.style.display = 'none';
         panelControles.style.display = 'flex';
-        
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(() => {});
-        } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-        }
-
         actualizarSelect();
         cargarArchivoSeleccionado();
     } catch (err) {
-        mensajeError.innerText = "Error: Permisos de cámara denegados o dispositivo no compatible.";
+        mensajeError.innerText = "Error: Permisos denegados o cámara no compatible.";
     }
 }
-
-window.addEventListener('resize', () => {
-    if (videoMultimedia.videoWidth) {
-        canvas.width = videoMultimedia.videoWidth;
-        canvas.height = videoMultimedia.videoHeight;
-    } else if (imagenFuenteOculta.naturalWidth) {
-        canvas.width = imagenFuenteOculta.naturalWidth;
-        canvas.height = imagenFuenteOculta.naturalHeight;
-    }
-});
 
 videoMultimedia.addEventListener('loadedmetadata', () => {
     canvas.width = videoMultimedia.videoWidth;
