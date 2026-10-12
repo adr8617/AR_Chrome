@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Chroma Cam FX</title>
 
-<!-- Librerías de Segmentación de Personas (Google MediaPipe - Licencia Apache 2.0) -->
+<!-- Librerías de Segmentación por IA (Google MediaPipe - Licencia Apache 2.0) -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
@@ -113,12 +113,12 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
         <p>Bienvenido a <strong>Chroma Cam FX</strong>. Guía de uso:</p>
         <ul>
             <li><strong>⚙️ Menú de Efectos:</strong> Selecciona el video o GIF para proyectar sobre tu cámara.</li>
-            <li><strong>📷 Cámara Croma IA (Tricolor):</strong> Activa la IA para detectar personas y pintar el fondo del color croma seleccionado.</li>
-            <li><strong>✋ Mover y Escalar:</strong> Permite mover y hacer zoom (gesto de pellizco 🤏).</li>
-            <li><strong>🔄 Cambiar Cámara:</strong> Alterna entre frontal y trasera.</li>
-            <li><strong>👁️ Ocultar/Mostrar Controles:</strong> Oculta la interfaz para limpiar la pantalla.</li>
-            <li><strong>🔴 Grabar Video:</strong> Graba la pantalla integrando audio y video.</li>
-            <li><strong>🎨 Filtro de Croma:</strong> Elige Verde, Azul o Negro.</li>
+            <li><strong>📷 Cámara Croma IA (Tricolor):</strong> Activa la IA para detectar personas y remover el fondo en vivo.</li>
+            <li><strong>✋ Mover y Escalar:</strong> Mueve y haz zoom con el gesto de pellizco (🤏).</li>
+            <li><strong>🔄 Cambiar Cámara:</strong> Alterna entre cámara frontal y trasera.</li>
+            <li><strong>👁️ Ocultar/Mostrar Controles:</strong> Oculta botones para limpiar la toma.</li>
+            <li><strong>🔴 Grabar Video:</strong> Graba pantalla integrando audio y video.</li>
+            <li><strong>🎨 Filtro de Croma:</strong> Selecciona Verde, Azul o Negro.</li>
         </ul>
         <button id="btn-cerrar-ayuda" class="btn-cerrar-modal">Cerrar Ayuda</button>
     </div>
@@ -273,12 +273,13 @@ function mostrarAviso() {
     setTimeout(() => { avisoPremium.style.display = 'none'; }, 5000);
 }
 
-// Inicialización de MediaPipe Selfie Segmentation
+// Inicialización optimizada de MediaPipe Selfie Segmentation
 function inicializarIA() {
     selfieSegmentation = new SelfieSegmentation({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
     });
-    selfieSegmentation.setOptions({ modelSelection: 1 });
+    // Modelo 0 = Selfie/General (Ultra ligero, ideal para procesadores móviles)
+    selfieSegmentation.setOptions({ modelSelection: 0 });
     selfieSegmentation.onResults(onResultadosIA);
 }
 
@@ -291,8 +292,10 @@ function onResultadosIA(results) {
     ctxCamaraIA.save();
     ctxCamaraIA.clearRect(0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
+    // 1. Dibujar la máscara de la silueta humana
     ctxCamaraIA.drawImage(results.segmentationMask, 0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
+    // 2. Rellenar el fondo exterior con el color de croma seleccionado
     ctxCamaraIA.globalCompositeOperation = 'source-out';
     if (colorFiltro === 'verde') ctxCamaraIA.fillStyle = '#00FF00';
     else if (colorFiltro === 'azul') ctxCamaraIA.fillStyle = '#0000FF';
@@ -300,6 +303,7 @@ function onResultadosIA(results) {
 
     ctxCamaraIA.fillRect(0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
+    // 3. Dibujar la imagen real de la persona sobre la máscara recortada
     ctxCamaraIA.globalCompositeOperation = 'destination-over';
     ctxCamaraIA.drawImage(results.image, 0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
