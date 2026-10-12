@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Chroma Cam FX</title>
 
-<!-- MediaPipe Selfie Segmentation por CDN (Gratis, local e IA offline) -->
+<!-- Librerías de Segmentación de Personas (Google MediaPipe - Licencia Apache 2.0) -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
@@ -39,7 +39,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #btn-mover-efecto.activo { background-color: #28a745; border-color: #fff; }
 #btn-cambiar-camara::after { content: "🔄"; font-size: 16px; }
 
-/* Nuevo Botón Tricolor de Cámara IA */
+/* Botón Tricolor de Cámara Croma IA */
 #btn-camara-ia { 
     background: linear-gradient(135deg, #00ff00 0%, #0000ff 50%, #111111 100%); 
     border: 2px solid #ffffff; 
@@ -126,8 +126,9 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 
 <div id="modal-terminos">
     <div id="contenido-modal">
-        <h3>📄 Términos y Privacidad</h3>
+        <h3>📄 Términos, Privacidad y Licencias</h3>
         <p><strong>Privacidad:</strong> Chroma Cam FX procesa las imágenes 100% de manera local en tu teléfono. No recopilamos ni enviamos ningún flujo de video a servidores externos.</p>
+        <p><strong>Créditos y Licencias:</strong> Esta aplicación utiliza la tecnología de segmentación por IA <em>Google MediaPipe Selfie Segmentation</em>, distribuida de forma abierta bajo la Licencia Apache 2.0.</p>
         <button id="btn-cerrar-terminos" class="btn-cerrar-modal">Entendido</button>
     </div>
 </div>
@@ -290,10 +291,8 @@ function onResultadosIA(results) {
     ctxCamaraIA.save();
     ctxCamaraIA.clearRect(0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
-    // Dibujar la máscara de segmentación (silueta humana)
     ctxCamaraIA.drawImage(results.segmentationMask, 0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
-    // Seleccionar color sintético del fondo según el color clave
     ctxCamaraIA.globalCompositeOperation = 'source-out';
     if (colorFiltro === 'verde') ctxCamaraIA.fillStyle = '#00FF00';
     else if (colorFiltro === 'azul') ctxCamaraIA.fillStyle = '#0000FF';
@@ -301,7 +300,6 @@ function onResultadosIA(results) {
 
     ctxCamaraIA.fillRect(0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
-    // Dibujar a la persona sobre la máscara
     ctxCamaraIA.globalCompositeOperation = 'destination-over';
     ctxCamaraIA.drawImage(results.image, 0, 0, canvasCamaraIA.width, canvasCamaraIA.height);
 
