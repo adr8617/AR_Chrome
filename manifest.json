@@ -4,9 +4,23 @@
   "display": "standalone",
   "name": "Chroma Cam FX",
   "orientation": "any",
-  "scope": "/",
+  "scope": "/AR_Croma/",
   "short_name": "ChromaCam",
-  "start_url": "/",
+  "start_url": "/AR_Croma/camara.html",
   "theme_color": "#ffffff",
-  "id": "com.adr8617.chromacamfx"
+  "id": "com.adr8617.chromacamfx",
+  "icons": [
+    {
+      "src": "launchericon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "launchericon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
