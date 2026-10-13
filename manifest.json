@@ -1,19 +1,12 @@
 {
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
   "name": "Chroma Cam FX",
+  "orientation": "any",
+  "scope": "/",
   "short_name": "ChromaCam",
-  "description": "Superpone efectos de video MP4 y GIFs con transparencia Croma sobre tu cámara en vivo con IA.",
-  "start_url": "./index.html",
-  "display": "fullscreen",
-  "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/685/685655.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "id": "com.adr8617.chromacamfx"
 }
-
