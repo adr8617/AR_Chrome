@@ -308,14 +308,27 @@ const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
 let audioContextGlobal = null;
 
-function activarAudioGlobal() {
+// Función para forzar el encendido de audio al tocar cualquier parte de la pantalla
+function forzarDesbloqueoAudio() {
     if (!audioContextGlobal) {
         audioContextGlobal = new (window.AudioContext || window.webkitAudioContext)();
     }
     if (audioContextGlobal.state === 'suspended') {
         audioContextGlobal.resume();
     }
+    // Buscar todos los elementos de video creados en la página y encender su sonido
+    document.querySelectorAll('video').forEach(v => {
+        if (v.id !== 'video-camara') {
+            v.muted = false;
+            v.volume = 1.0;
+            v.play().catch(() => {});
+        }
+    });
 }
+
+// Escuchar primer toque en pantalla
+document.addEventListener('touchstart', forzarDesbloqueoAudio, { passive: true });
+document.addEventListener('click', forzarDesbloqueoAudio, { passive: true });
 
 function obtenerDispositivoId() {
     let devId = localStorage.getItem('estudio_ar_device_id');
@@ -509,14 +522,13 @@ function actualizarSelect() {
 
 btnMenuCircular.addEventListener('click', (e) => {
     e.stopPropagation();
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     const estaVisible = selectorVideoWrapper.style.display === 'flex';
     selectorVideoWrapper.style.display = estaVisible ? 'none' : 'flex';
     btnMenuCircular.classList.toggle('activo-tactil', !estaVisible);
 });
 
 document.addEventListener('click', () => {
-    activarAudioGlobal();
     selectorVideoWrapper.style.display = 'none';
     btnMenuCircular.classList.remove('activo-tactil');
     menuColores.style.display = 'none';
@@ -528,7 +540,7 @@ selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
 
 btnDescargarDemo.addEventListener('click', async (e) => {
     e.stopPropagation();
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     const urlDemoVideo = 'https://adr8617.github.io/AR_Croma/Img/espiritu_espectral.mp4';
     try {
         btnDescargarDemo.innerText = "⏳ Descargando...";
@@ -554,7 +566,7 @@ btnDescargarDemo.addEventListener('click', async (e) => {
 
 btnAgregarArchivo.addEventListener('click', (e) => {
     e.stopPropagation();
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     if (!esSuperUsuario && listaMultimedia.length >= 2) {
         mostrarAviso();
         selectorVideoWrapper.style.display = 'none';
@@ -619,7 +631,7 @@ function calcularDistanciaTactil(t1, t2) {
 }
 
 canvas.addEventListener('touchstart', (e) => {
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     if (e.touches.length === 2) {
         if (!esSuperUsuario) {
             mostrarAviso("función zoom deshabilitada en versiones de prueba");
@@ -684,7 +696,7 @@ function selectLayer(layer) {
 }
 
 function addChromaLayerExtra(sourceUrl, tipo) {
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     layerCounter++;
     const layerDiv = document.createElement('div');
     layerDiv.className = 'chroma-layer-extra selected';
@@ -749,16 +761,11 @@ function addChromaLayerExtra(sourceUrl, tipo) {
         vExtra.volume = 1.0;
         vExtra.playsInline = true;
 
-        const intentarReproducirConAudio = () => {
-            vExtra.muted = false;
-            vExtra.play().catch(() => {
-                vExtra.muted = true;
-                vExtra.play();
-            });
-        };
-
-        intentarReproducirConAudio();
-        document.addEventListener('touchstart', intentarReproducirConAudio, { once: true });
+        vExtra.play().catch(() => {
+            // Reintento en silencio y desbloqueo al primer toque
+            vExtra.muted = true;
+            vExtra.play();
+        });
 
         let renderingVideo = true;
         function processVideoFrame() {
@@ -873,7 +880,7 @@ function makeInteractableLayer(element) {
 
 // Grabación
 btnGrabar.addEventListener('click', () => {
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     if (!estaGrabando) { 
         let nombreSugerido = `ChromaCam_${Date.now()}`;
         nombreArchivoGrabado = prompt("Escribe el nombre para tu video grabado:", nombreSugerido);
@@ -914,11 +921,16 @@ btnGrabar.addEventListener('click', () => {
                 const fuenteMic = audioCtx.createMediaStreamSource(streamCamara);
                 fuenteMic.connect(dest);
             }
-            if (tipoActual === 'video' && !videoMultimedia.paused) {
-                const fuenteVideo = audioCtx.createMediaElementSource(videoMultimedia);
-                fuenteVideo.connect(dest);
-                fuenteVideo.connect(audioCtx.destination);
-            }
+            
+            // Mezclar audio de todos los videos flotantes
+            document.querySelectorAll('.chroma-layer-extra video').forEach(v => {
+                if (!v.paused) {
+                    const fuenteVideo = audioCtx.createMediaElementSource(v);
+                    fuenteVideo.connect(dest);
+                    fuenteVideo.connect(audioCtx.destination);
+                }
+            });
+
             if (dest.stream.getAudioTracks().length > 0) {
                 tracksCombinados.push(dest.stream.getAudioTracks()[0]);
             }
@@ -997,7 +1009,7 @@ function cargarArchivoSeleccionado() {
 selectorVideo.addEventListener('change', cargarArchivoSeleccionado);
 
 function verificarAccesoSuperusuario() {
-    activarAudioGlobal();
+    forzarDesbloqueoAudio();
     const emailIngresado = inputEmailUsuario.value.trim().toLowerCase();
     if (SUPER_USUARIOS.includes(emailIngresado)) {
         const deviceIdActual = obtenerDispositivoId();
