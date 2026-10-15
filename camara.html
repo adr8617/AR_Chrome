@@ -308,7 +308,7 @@ const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
 let audioContextGlobal = null;
 
-// Función para forzar el encendido de audio al tocar cualquier parte de la pantalla
+// Forzar el encendido del sistema de audio de Chrome al tocar la pantalla
 function forzarDesbloqueoAudio() {
     if (!audioContextGlobal) {
         audioContextGlobal = new (window.AudioContext || window.webkitAudioContext)();
@@ -316,7 +316,6 @@ function forzarDesbloqueoAudio() {
     if (audioContextGlobal.state === 'suspended') {
         audioContextGlobal.resume();
     }
-    // Buscar todos los elementos de video creados en la página y encender su sonido
     document.querySelectorAll('video').forEach(v => {
         if (v.id !== 'video-camara') {
             v.muted = false;
@@ -326,7 +325,6 @@ function forzarDesbloqueoAudio() {
     });
 }
 
-// Escuchar primer toque en pantalla
 document.addEventListener('touchstart', forzarDesbloqueoAudio, { passive: true });
 document.addEventListener('click', forzarDesbloqueoAudio, { passive: true });
 
@@ -705,17 +703,29 @@ function addChromaLayerExtra(sourceUrl, tipo) {
     layerDiv.dataset.scale = "1.0";
     layerDiv.dataset.baseWidth = "260";
 
+    const canvasExtra = document.createElement('canvas');
+    const ctxExtra = canvasExtra.getContext('2d', { willReadFrequently: true });
+
+    let videoElementRef = null;
+
     const closeBtn = document.createElement('div');
     closeBtn.className = 'btn-close-layer';
     closeBtn.innerText = '✕';
     closeBtn.onclick = function(e) {
         e.stopPropagation();
+
+        // Destrucción total y detención de audio en memoria
+        if (videoElementRef) {
+            videoElementRef.pause();
+            videoElementRef.muted = true;
+            videoElementRef.currentTime = 0;
+            videoElementRef.removeAttribute('src');
+            videoElementRef.load();
+        }
+
         layerDiv.remove();
         if (activeLayer === layerDiv) activeLayer = null;
     };
-
-    const canvasExtra = document.createElement('canvas');
-    const ctxExtra = canvasExtra.getContext('2d', { willReadFrequently: true });
 
     if (tipo === 'imagen' || tipo === 'gif') {
         const img = new Image();
@@ -761,8 +771,9 @@ function addChromaLayerExtra(sourceUrl, tipo) {
         vExtra.volume = 1.0;
         vExtra.playsInline = true;
 
+        videoElementRef = vExtra;
+
         vExtra.play().catch(() => {
-            // Reintento en silencio y desbloqueo al primer toque
             vExtra.muted = true;
             vExtra.play();
         });
@@ -922,7 +933,6 @@ btnGrabar.addEventListener('click', () => {
                 fuenteMic.connect(dest);
             }
             
-            // Mezclar audio de todos los videos flotantes
             document.querySelectorAll('.chroma-layer-extra video').forEach(v => {
                 if (!v.paused) {
                     const fuenteVideo = audioCtx.createMediaElementSource(v);
