@@ -175,7 +175,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 
 #capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; }
 
-/* Lienzo del video principal */
+/* Canvas overlay para video principal */
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
 
 /* Capas independientes extra */
@@ -318,7 +318,7 @@ function obtenerDispositivoId() {
     return devId;
 }
 
-const MULTIMEDIA_DEFAULT = [{ nombre: "Efecto: La Llorona (Demo)", archivo: "espiritu_espectral.mp4", tipo: "video" }];
+const MULTIMEDIA_DEFAULT = [{ nombre: "Efecto: Espíritu Espectral", archivo: "espiritu_espectral.mp4", tipo: "video" }];
 
 function obtenerBaseDatos() {
     const guardado = localStorage.getItem('efectos_ar_db');
@@ -516,30 +516,29 @@ document.addEventListener('click', () => {
 
 selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
 
-/* Descarga de demostración segura desde GitHub */
+/* Descarga de demostración apuntando al archivo real espiritu_espectral.mp4 */
 btnDescargarDemo.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const urlDemoImg = 'https://adr8617.github.io/AR_Chroma/Img/llorona_demo.png';
+    const urlDemoVideo = 'https://adr8617.github.io/AR_Chroma/Img/espiritu_espectral.mp4';
     try {
         btnDescargarDemo.innerText = "⏳ Descargando...";
-        const resp = await fetch(urlDemoImg);
-        if (!resp.ok) throw new Error("No encontrada");
+        const resp = await fetch(urlDemoVideo);
+        if (!resp.ok) throw new Error("No encontrado");
         const blob = await resp.blob();
         const urlBlobLocal = URL.createObjectURL(blob);
 
-        listaMultimedia.push({ nombre: "Demo: La Llorona (Croma)", archivo: urlBlobLocal, tipo: "imagen" });
+        listaMultimedia.push({ nombre: "Demo: Espíritu Espectral (GitHub)", archivo: urlBlobLocal, tipo: "video" });
         guardarBaseDatos(listaMultimedia);
         actualizarSelect();
         selectorVideo.selectedIndex = selectorVideo.options.length - 1;
         
-        // Auto-ejecutar apertura
         cargarArchivoSeleccionado();
         btnDescargarDemo.innerText = "📥 Descargar Demo";
         selectorVideoWrapper.style.display = 'none';
-        alert("¡Demo descargada e integrada con éxito!");
+        alert("¡Video de demostración descargado e integrado!");
     } catch (err) {
         btnDescargarDemo.innerText = "📥 Descargar Demo";
-        alert("Aviso: No se pudo conectar a la carpeta de demostraciones de GitHub. Verifica tu red.");
+        alert("Error: No se pudo descargar desde GitHub. Verifica tu red.");
     }
 });
 
@@ -724,6 +723,11 @@ function addChromaImageLayerExtra(imageSrc) {
     img.onload = function() {
         layerDiv.style.width = layerDiv.dataset.baseWidth + 'px';
         layerDiv.reprocessChroma();
+    };
+
+    img.onerror = function() {
+        alert("Atención: Este archivo expiró de la memoria local de tu teléfono. Puedes borrarlo e importar uno nuevo.");
+        layerDiv.remove();
     };
 
     layerDiv.appendChild(closeBtn);
@@ -918,7 +922,7 @@ opcionesColor.forEach(opcion => {
     });
 });
 
-/* Selección de archivos acumulativa */
+/* Carga de archivos acumulativa e independiente */
 function cargarArchivoSeleccionado() {
     if (selectorVideo.options.length === 0) return;
     const selectedOption = selectorVideo.options[selectorVideo.selectedIndex];
@@ -944,7 +948,6 @@ function cargarArchivoSeleccionado() {
         videoMultimedia.play().then(() => {
             if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
         }).catch(err => {
-            // Intento con mute para permitir reproducción automática
             videoMultimedia.muted = true;
             videoMultimedia.play();
             if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
@@ -1042,9 +1045,7 @@ async function lanzarApp() {
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
 
             actualizarSelect();
-            if (esSuperUsuario) {
-                cargarArchivoSeleccionado();
-            }
+            cargarArchivoSeleccionado();
         };
     } catch (err) {
         mensajeError.innerText = "Error: No se pudo acceder a la cámara o permisos denegados.";
