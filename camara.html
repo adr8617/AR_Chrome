@@ -175,10 +175,8 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 
 #capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; }
 
-/* Canvas overlay para video principal */
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
 
-/* Capas independientes flotantes (Multicapa acumulativa) */
 .chroma-layer-extra {
     position: absolute;
     top: 20%;
@@ -308,6 +306,16 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 <script>
 const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
+let audioContextGlobal = null;
+
+function activarAudioGlobal() {
+    if (!audioContextGlobal) {
+        audioContextGlobal = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContextGlobal.state === 'suspended') {
+        audioContextGlobal.resume();
+    }
+}
 
 function obtenerDispositivoId() {
     let devId = localStorage.getItem('estudio_ar_device_id');
@@ -501,12 +509,14 @@ function actualizarSelect() {
 
 btnMenuCircular.addEventListener('click', (e) => {
     e.stopPropagation();
+    activarAudioGlobal();
     const estaVisible = selectorVideoWrapper.style.display === 'flex';
     selectorVideoWrapper.style.display = estaVisible ? 'none' : 'flex';
     btnMenuCircular.classList.toggle('activo-tactil', !estaVisible);
 });
 
 document.addEventListener('click', () => {
+    activarAudioGlobal();
     selectorVideoWrapper.style.display = 'none';
     btnMenuCircular.classList.remove('activo-tactil');
     menuColores.style.display = 'none';
@@ -516,9 +526,9 @@ document.addEventListener('click', () => {
 
 selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
 
-/* Descarga de demostración con la URL exacta del repositorio AR_Croma */
 btnDescargarDemo.addEventListener('click', async (e) => {
     e.stopPropagation();
+    activarAudioGlobal();
     const urlDemoVideo = 'https://adr8617.github.io/AR_Croma/Img/espiritu_espectral.mp4';
     try {
         btnDescargarDemo.innerText = "⏳ Descargando...";
@@ -532,7 +542,6 @@ btnDescargarDemo.addEventListener('click', async (e) => {
         actualizarSelect();
         selectorVideo.selectedIndex = selectorVideo.options.length - 1;
         
-        // Agregar de forma acumulativa
         addChromaLayerExtra(urlBlobLocal, "video");
         btnDescargarDemo.innerText = "📥 Descargar Demo";
         selectorVideoWrapper.style.display = 'none';
@@ -545,6 +554,7 @@ btnDescargarDemo.addEventListener('click', async (e) => {
 
 btnAgregarArchivo.addEventListener('click', (e) => {
     e.stopPropagation();
+    activarAudioGlobal();
     if (!esSuperUsuario && listaMultimedia.length >= 2) {
         mostrarAviso();
         selectorVideoWrapper.style.display = 'none';
@@ -609,6 +619,7 @@ function calcularDistanciaTactil(t1, t2) {
 }
 
 canvas.addEventListener('touchstart', (e) => {
+    activarAudioGlobal();
     if (e.touches.length === 2) {
         if (!esSuperUsuario) {
             mostrarAviso("función zoom deshabilitada en versiones de prueba");
@@ -655,8 +666,6 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
-/* --- LÓGICA DE CAPAS EXTRA ACUMULATIVAS CON AUDIO --- */
-
 toleranceRange.addEventListener('input', function() {
     if (activeLayer && activeLayer.reprocessChroma) {
         activeLayer.reprocessChroma();
@@ -675,6 +684,7 @@ function selectLayer(layer) {
 }
 
 function addChromaLayerExtra(sourceUrl, tipo) {
+    activarAudioGlobal();
     layerCounter++;
     const layerDiv = document.createElement('div');
     layerDiv.className = 'chroma-layer-extra selected';
@@ -731,18 +741,24 @@ function addChromaLayerExtra(sourceUrl, tipo) {
         layerDiv.appendChild(closeBtn);
         layerDiv.appendChild(canvasExtra);
     } else {
-        // Video acumulativo con reproducción de audio
         const vExtra = document.createElement('video');
         vExtra.src = sourceUrl;
         vExtra.autoplay = true;
         vExtra.loop = true;
-        vExtra.muted = false; // Audio Habilitado
+        vExtra.muted = false;
+        vExtra.volume = 1.0;
         vExtra.playsInline = true;
-        vExtra.play().catch(err => {
-            // Reintento con mute de emergencia si el navegador restringe la autorreproducción
-            vExtra.muted = true;
-            vExtra.play();
-        });
+
+        const intentarReproducirConAudio = () => {
+            vExtra.muted = false;
+            vExtra.play().catch(() => {
+                vExtra.muted = true;
+                vExtra.play();
+            });
+        };
+
+        intentarReproducirConAudio();
+        document.addEventListener('touchstart', intentarReproducirConAudio, { once: true });
 
         let renderingVideo = true;
         function processVideoFrame() {
@@ -857,6 +873,7 @@ function makeInteractableLayer(element) {
 
 // Grabación
 btnGrabar.addEventListener('click', () => {
+    activarAudioGlobal();
     if (!estaGrabando) { 
         let nombreSugerido = `ChromaCam_${Date.now()}`;
         nombreArchivoGrabado = prompt("Escribe el nombre para tu video grabado:", nombreSugerido);
@@ -968,7 +985,6 @@ opcionesColor.forEach(opcion => {
     });
 });
 
-/* Selección de archivos acumulativa (Agrega como capa extra) */
 function cargarArchivoSeleccionado() {
     if (selectorVideo.options.length === 0) return;
     const selectedOption = selectorVideo.options[selectorVideo.selectedIndex];
@@ -981,6 +997,7 @@ function cargarArchivoSeleccionado() {
 selectorVideo.addEventListener('change', cargarArchivoSeleccionado);
 
 function verificarAccesoSuperusuario() {
+    activarAudioGlobal();
     const emailIngresado = inputEmailUsuario.value.trim().toLowerCase();
     if (SUPER_USUARIOS.includes(emailIngresado)) {
         const deviceIdActual = obtenerDispositivoId();
