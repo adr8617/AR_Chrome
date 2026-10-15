@@ -26,7 +26,7 @@
       overflow: hidden;
     }
 
-    /* Video de la cámara de fondo */
+    /* Video de la cámara */
     #webcam {
       position: absolute;
       top: 0;
@@ -35,6 +35,40 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
+    }
+
+    /* Menú Superior de Botones */
+    #top-bar {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 10px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .btn-action {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-action:active {
+      transform: scale(0.95);
     }
 
     /* Contenedor de capas multicapa */
@@ -48,10 +82,10 @@
       pointer-events: none;
     }
 
-    /* Cada elemento/imagen agregada */
+    /* Cada imagen agregada */
     .chroma-layer {
       position: absolute;
-      top: 20%;
+      top: 25%;
       left: 20%;
       z-index: 10;
       cursor: move;
@@ -61,7 +95,6 @@
       border: 2px transparent dashed;
     }
 
-    /* Borde resaltado al seleccionar una imagen */
     .chroma-layer.selected {
       border-color: #00ff00;
     }
@@ -72,7 +105,7 @@
       height: auto;
     }
 
-    /* Botón X para cerrar/eliminar una imagen individual */
+    /* Botón X para cerrar imagen individual */
     .btn-close-layer {
       display: none;
       position: absolute;
@@ -96,13 +129,13 @@
       display: block;
     }
 
-    /* Panel de control flotante inferior para sensibilidad del croma */
+    /* Panel flotante inferior para la sensibilidad verde */
     #controls-panel {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 100;
+      z-index: 9999;
       background: rgba(0, 0, 0, 0.75);
       padding: 10px 20px;
       border-radius: 25px;
@@ -115,24 +148,34 @@
     }
 
     #controls-panel label {
-      font-size: 14px;
+      font-size: 13px;
       white-space: nowrap;
     }
 
     #controls-panel input[type=range] {
-      width: 120px;
+      width: 110px;
       accent-color: #00ff00;
     }
   </style>
 </head>
 <body>
 
+  <!-- Menú Superior -->
+  <div id="top-bar">
+    <button class="btn-action" onclick="document.getElementById('fileInput').click()">📁 Agregar Foto</button>
+    <button class="btn-action" onclick="loadDefaultSpirit()">👻 Espíritu</button>
+    <button class="btn-action" style="background:#fff;" onclick="startCamera()">🔄 Cámara</button>
+  </div>
+
+  <!-- Selector oculto de archivos -->
+  <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+
   <div id="camera-container">
     <video id="webcam" autoplay playsinline></video>
     <div id="layers-wrapper"></div>
   </div>
 
-  <!-- Control deslizante para ajustar la sensibilidad del verde -->
+  <!-- Control inferior de sensibilidad -->
   <div id="controls-panel">
     <label for="toleranceRange">Sensibilidad Verde:</label>
     <input type="range" id="toleranceRange" min="0.8" max="2.0" step="0.05" value="1.2">
@@ -142,28 +185,44 @@
     let layerCounter = 0;
     let activeLayer = null;
 
-    // Inicializar la cámara web
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' },
+          video: { facingMode: { ideal: 'environment' } },
           audio: false
         });
         document.getElementById('webcam').srcObject = stream;
       } catch (err) {
+        alert("Por favor concede permisos de cámara en tu navegador.");
         console.error("Error al acceder a la cámara: ", err);
       }
     }
-    startCamera();
 
-    // Re-procesar el croma cuando se mueve la barra de sensibilidad
+    window.addEventListener('DOMContentLoaded', () => {
+      startCamera();
+    });
+
+    function loadDefaultSpirit() {
+      addChromaImage('espiritu.png'); 
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          addChromaImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     document.getElementById('toleranceRange').addEventListener('input', function() {
       if (activeLayer && activeLayer.reprocessChroma) {
         activeLayer.reprocessChroma();
       }
     });
 
-    // Función principal para agregar múltiples imágenes independientes
     function addChromaImage(imageSrc) {
       layerCounter++;
       const wrapper = document.getElementById('layers-wrapper');
@@ -175,7 +234,6 @@
       layerDiv.dataset.scale = "1.0";
       layerDiv.dataset.baseWidth = "220";
 
-      // Botón X para cerrar esta imagen en específico
       const closeBtn = document.createElement('div');
       closeBtn.className = 'btn-close-layer';
       closeBtn.innerText = '✕';
@@ -191,7 +249,6 @@
       img.crossOrigin = 'Anonymous';
       img.src = imageSrc;
 
-      // Algoritmo de extracción de verde con tolerancia dinámica
       layerDiv.reprocessChroma = function() {
         if (!img.complete) return;
         canvas.width = img.width;
@@ -207,9 +264,8 @@
           const g = data[i + 1];
           const b = data[i + 2];
 
-          // Detección y remoción del verde
           if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) {
-            data[i + 3] = 0; // Transparente
+            data[i + 3] = 0;
           }
         }
         ctx.putImageData(imgData, 0, 0);
@@ -234,13 +290,11 @@
       activeLayer = layer;
     }
 
-    // Deseleccionar al tocar en el fondo del visor de la cámara
     document.getElementById('camera-container').addEventListener('click', function() {
       document.querySelectorAll('.chroma-layer').forEach(l => l.classList.remove('selected'));
       activeLayer = null;
     });
 
-    // Mover con 1 dedo y Reescalar (Zoom) con 2 dedos
     function makeInteractable(element) {
       let isDragging = false;
       let startX, startY, initialLeft, initialTop;
