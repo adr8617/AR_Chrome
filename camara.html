@@ -178,7 +178,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 /* Canvas overlay para video principal */
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
 
-/* Capas independientes extra */
+/* Capas independientes flotantes (Multicapa acumulativa) */
 .chroma-layer-extra {
     position: absolute;
     top: 20%;
@@ -191,7 +191,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     border: 2px transparent dashed;
 }
 .chroma-layer-extra.selected { border-color: #00ff00; }
-.chroma-layer-extra canvas { display: block; width: 100%; height: auto; }
+.chroma-layer-extra canvas, .chroma-layer-extra video { display: block; width: 100%; height: auto; }
 
 .btn-close-layer {
     display: none;
@@ -237,7 +237,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
         <h3>📖 Manual de Ayuda y Funcionalidades</h3>
         <p>Bienvenido a <strong>Chroma Cam FX</strong>. Guía de uso:</p>
         <ul>
-            <li><strong>⚙️ Menú de Efectos:</strong> Selecciona o descarga demostraciones.</li>
+            <li><strong>⚙️ Menú de Efectos:</strong> Agrega o descarga efectos acumulativos.</li>
             <li><strong>📷 Cámara Croma IA (Tricolor):</strong> Activa la IA para remover el fondo en vivo.</li>
             <li><strong>✋ Mover y Escalar:</strong> En versión PRO puedes escalar con pellizco (🤏).</li>
             <li><strong>🔄 Cambiar Cámara:</strong> Alterna entre cámara frontal y trasera.</li>
@@ -291,7 +291,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 
     <div id="panel-sensibilidad" class="control-ocultable">
         <label for="toleranceRange">Sensibilidad Verde:</label>
-        <input type="range" id="toleranceRange" min="0.8" max="2.0" step="0.05" value="1.2">
+        <input type="range" id="toleranceRange" min="0.5" max="2.2" step="0.05" value="1.0">
     </div>
 
     <video id="video-camara" autoplay playsinline muted></video>
@@ -516,10 +516,10 @@ document.addEventListener('click', () => {
 
 selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
 
-/* Descarga de demostración apuntando al archivo real espiritu_espectral.mp4 */
+/* Descarga de demostración con la URL exacta del repositorio AR_Croma */
 btnDescargarDemo.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const urlDemoVideo = 'https://adr8617.github.io/AR_Chroma/Img/espiritu_espectral.mp4';
+    const urlDemoVideo = 'https://adr8617.github.io/AR_Croma/Img/espiritu_espectral.mp4';
     try {
         btnDescargarDemo.innerText = "⏳ Descargando...";
         const resp = await fetch(urlDemoVideo);
@@ -532,13 +532,14 @@ btnDescargarDemo.addEventListener('click', async (e) => {
         actualizarSelect();
         selectorVideo.selectedIndex = selectorVideo.options.length - 1;
         
-        cargarArchivoSeleccionado();
+        // Agregar de forma acumulativa
+        addChromaLayerExtra(urlBlobLocal, "video");
         btnDescargarDemo.innerText = "📥 Descargar Demo";
         selectorVideoWrapper.style.display = 'none';
-        alert("¡Video de demostración descargado e integrado!");
+        alert("¡Efecto de demostración descargado e integrado!");
     } catch (err) {
         btnDescargarDemo.innerText = "📥 Descargar Demo";
-        alert("Error: No se pudo descargar desde GitHub. Verifica tu red.");
+        alert("Error: No se pudo descargar desde GitHub. Verifica tu conexión.");
     }
 });
 
@@ -562,7 +563,6 @@ btnBorrarItem.addEventListener('click', (e) => {
             guardarBaseDatos(listaMultimedia);
             actualizarSelect();
             selectorVideo.selectedIndex = 0;
-            cargarArchivoSeleccionado();
             selectorVideoWrapper.style.display = 'none';
         }
     }
@@ -583,7 +583,9 @@ inputArchivoOculto.addEventListener('change', (e) => {
     guardarBaseDatos(listaMultimedia);
     actualizarSelect();
     selectorVideo.selectedIndex = selectorVideo.options.length - 1;
-    cargarArchivoSeleccionado();
+    
+    // Agregar directamente a la pantalla como nueva capa sin cerrar la anterior
+    addChromaLayerExtra(urlLocal, tipoDetectado);
     selectorVideoWrapper.style.display = 'none';
 });
 
@@ -654,7 +656,7 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
-/* Capas Multicapa de Imágenes */
+/* --- LÓGICA DE CAPAS EXTRA ACUMULATIVAS (MULTICAPA) --- */
 
 toleranceRange.addEventListener('input', function() {
     if (activeLayer && activeLayer.reprocessChroma) {
@@ -673,7 +675,7 @@ function selectLayer(layer) {
     activeLayer = layer;
 }
 
-function addChromaImageLayerExtra(imageSrc) {
+function addChromaLayerExtra(sourceUrl, tipo) {
     layerCounter++;
     const layerDiv = document.createElement('div');
     layerDiv.className = 'chroma-layer-extra selected';
@@ -693,47 +695,88 @@ function addChromaImageLayerExtra(imageSrc) {
 
     const canvasExtra = document.createElement('canvas');
     const ctxExtra = canvasExtra.getContext('2d', { willReadFrequently: true });
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.src = imageSrc;
 
-    layerDiv.reprocessChroma = function() {
-        if (!img.complete) return;
-        canvasExtra.width = img.width || 300;
-        canvasExtra.height = img.height || 300;
-        ctxExtra.drawImage(img, 0, 0, canvasExtra.width, canvasExtra.height);
+    if (tipo === 'imagen' || tipo === 'gif') {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = sourceUrl;
 
-        const tolerance = parseFloat(toleranceRange.value);
-        const imgData = ctxExtra.getImageData(0, 0, canvasExtra.width, canvasExtra.height);
-        const data = imgData.data;
+        layerDiv.reprocessChroma = function() {
+            if (!img.complete) return;
+            canvasExtra.width = img.width || 300;
+            canvasExtra.height = img.height || 300;
+            ctxExtra.drawImage(img, 0, 0, canvasExtra.width, canvasExtra.height);
 
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i], g = data[i + 1], b = data[i + 2];
-            if (colorFiltro === 'verde') {
-                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) data[i + 3] = 0;
-            } else if (colorFiltro === 'azul' && esSuperUsuario) {
-                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) data[i + 3] = 0;
-            } else if (colorFiltro === 'negro' && esSuperUsuario) {
-                if (r < 60 && g < 60 && b < 60) data[i + 3] = 0;
+            const tolerance = parseFloat(toleranceRange.value);
+            const imgData = ctxExtra.getImageData(0, 0, canvasExtra.width, canvasExtra.height);
+            const data = imgData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                if (colorFiltro === 'verde') {
+                    if (g > 60 && g > r * (1.8 - (tolerance * 0.4)) && g > b * (1.8 - (tolerance * 0.4))) data[i + 3] = 0;
+                } else if (colorFiltro === 'azul' && esSuperUsuario) {
+                    if (b > 60 && b > r * (1.8 - (tolerance * 0.4)) && b > g * (1.8 - (tolerance * 0.4))) data[i + 3] = 0;
+                } else if (colorFiltro === 'negro' && esSuperUsuario) {
+                    if (r < 50 && g < 50 && b < 50) data[i + 3] = 0;
+                }
             }
+            ctxExtra.putImageData(imgData, 0, 0);
+        };
+
+        img.onload = function() {
+            layerDiv.style.width = layerDiv.dataset.baseWidth + 'px';
+            layerDiv.reprocessChroma();
+        };
+
+        layerDiv.appendChild(closeBtn);
+        layerDiv.appendChild(canvasExtra);
+    } else {
+        // En caso de video extra acumulativo
+        const vExtra = document.createElement('video');
+        vExtra.src = sourceUrl;
+        vExtra.autoplay = true;
+        vExtra.loop = true;
+        vExtra.muted = true;
+        vExtra.playsInline = true;
+        vExtra.play().catch(() => {});
+
+        let renderingVideo = true;
+        function processVideoFrame() {
+            if (!renderingVideo || !document.contains(layerDiv)) return;
+            if (vExtra.readyState >= 2) {
+                canvasExtra.width = vExtra.videoWidth || 300;
+                canvasExtra.height = vExtra.videoHeight || 300;
+                ctxExtra.drawImage(vExtra, 0, 0, canvasExtra.width, canvasExtra.height);
+
+                const tolerance = parseFloat(toleranceRange.value);
+                const imgData = ctxExtra.getImageData(0, 0, canvasExtra.width, canvasExtra.height);
+                const data = imgData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i + 1], b = data[i + 2];
+                    if (colorFiltro === 'verde') {
+                        if (g > 60 && g > r * (1.8 - (tolerance * 0.4)) && g > b * (1.8 - (tolerance * 0.4))) data[i + 3] = 0;
+                    } else if (colorFiltro === 'azul' && esSuperUsuario) {
+                        if (b > 60 && b > r * (1.8 - (tolerance * 0.4)) && b > g * (1.8 - (tolerance * 0.4))) data[i + 3] = 0;
+                    } else if (colorFiltro === 'negro' && esSuperUsuario) {
+                        if (r < 50 && g < 50 && b < 50) data[i + 3] = 0;
+                    }
+                }
+                ctxExtra.putImageData(imgData, 0, 0);
+            }
+            requestAnimationFrame(processVideoFrame);
         }
-        ctxExtra.putImageData(imgData, 0, 0);
-    };
+        vExtra.addEventListener('loadeddata', () => {
+            layerDiv.style.width = layerDiv.dataset.baseWidth + 'px';
+            processVideoFrame();
+        });
 
-    img.onload = function() {
-        layerDiv.style.width = layerDiv.dataset.baseWidth + 'px';
-        layerDiv.reprocessChroma();
-    };
+        layerDiv.appendChild(closeBtn);
+        layerDiv.appendChild(canvasExtra);
+    }
 
-    img.onerror = function() {
-        alert("Atención: Este archivo expiró de la memoria local de tu teléfono. Puedes borrarlo e importar uno nuevo.");
-        layerDiv.remove();
-    };
-
-    layerDiv.appendChild(closeBtn);
-    layerDiv.appendChild(canvasExtra);
     capaEfectoContainer.appendChild(layerDiv);
-
     selectLayer(layerDiv);
     makeInteractableLayer(layerDiv);
 }
@@ -922,37 +965,15 @@ opcionesColor.forEach(opcion => {
     });
 });
 
-/* Carga de archivos acumulativa e independiente */
+/* Selección de archivos acumulativa (Agrega como capa extra) */
 function cargarArchivoSeleccionado() {
     if (selectorVideo.options.length === 0) return;
     const selectedOption = selectorVideo.options[selectorVideo.selectedIndex];
     const archivoUrl = selectedOption.value;
     tipoActual = selectedOption.getAttribute('data-tipo');
 
-    if (animacionGifId) { cancelAnimationFrame(animacionGifId); animacionGifId = null; }
-
-    if (tipoActual === 'gif') {
-        videoMultimedia.pause();
-        btnColor.style.display = interfazOculta ? 'none' : 'block';
-        imagenFuenteOculta.src = archivoUrl;
-        imagenFuenteOculta.onload = () => { procesarChromaKeyGIF(); };
-    } else if (tipoActual === 'imagen') {
-        btnColor.style.display = interfazOculta ? 'none' : 'block';
-        addChromaImageLayerExtra(archivoUrl);
-    } else {
-        // Reproducción de video .mp4
-        imagenFuenteOculta.src = "";
-        btnColor.style.display = interfazOculta ? 'none' : 'block';
-        videoMultimedia.src = archivoUrl;
-        videoMultimedia.muted = false;
-        videoMultimedia.play().then(() => {
-            if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
-        }).catch(err => {
-            videoMultimedia.muted = true;
-            videoMultimedia.play();
-            if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
-        });
-    }
+    // Agregar acumulativamente
+    addChromaLayerExtra(archivoUrl, tipoActual);
 }
 
 selectorVideo.addEventListener('change', cargarArchivoSeleccionado);
@@ -1045,7 +1066,9 @@ async function lanzarApp() {
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
 
             actualizarSelect();
-            cargarArchivoSeleccionado();
+            if (esSuperUsuario) {
+                cargarArchivoSeleccionado();
+            }
         };
     } catch (err) {
         mensajeError.innerText = "Error: No se pudo acceder a la cámara o permisos denegados.";
@@ -1082,13 +1105,13 @@ function procesarChromaKeyVideo() {
         for (let i = 0; i < totalPixeles; i++) {
             let r = frame.data[i * 4 + 0], g = frame.data[i * 4 + 1], b = frame.data[i * 4 + 2];
             if (colorFiltro === 'verde') { 
-                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+                if (g > 60 && g > r * (1.8 - (tolerance * 0.4)) && g > b * (1.8 - (tolerance * 0.4))) frame.data[i * 4 + 3] = 0; 
             } 
             else if (colorFiltro === 'azul' && esSuperUsuario) { 
-                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+                if (b > 60 && b > r * (1.8 - (tolerance * 0.4)) && b > g * (1.8 - (tolerance * 0.4))) frame.data[i * 4 + 3] = 0; 
             } 
             else if (colorFiltro === 'negro' && esSuperUsuario) { 
-                if (r < 60 && g < 60 && b < 60) frame.data[i * 4 + 3] = 0; 
+                if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; 
             }
         }
         ctx.putImageData(frame, 0, 0);
@@ -1108,13 +1131,13 @@ function procesarChromaKeyGIF() {
         for (let i = 0; i < totalPixeles; i++) {
             let r = frame.data[i * 4 + 0], g = frame.data[i * 4 + 1], b = frame.data[i * 4 + 2];
             if (colorFiltro === 'verde') { 
-                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+                if (g > 60 && g > r * (1.8 - (tolerance * 0.4)) && g > b * (1.8 - (tolerance * 0.4))) frame.data[i * 4 + 3] = 0; 
             } 
             else if (colorFiltro === 'azul' && esSuperUsuario) { 
-                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+                if (b > 60 && b > r * (1.8 - (tolerance * 0.4)) && b > g * (1.8 - (tolerance * 0.4))) frame.data[i * 4 + 3] = 0; 
             } 
             else if (colorFiltro === 'negro' && esSuperUsuario) { 
-                if (r < 60 && g < 60 && b < 60) frame.data[i * 4 + 3] = 0; 
+                if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; 
             }
         }
         ctx.putImageData(frame, 0, 0);
