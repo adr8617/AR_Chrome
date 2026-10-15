@@ -38,7 +38,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     left: 10px; 
     right: 55px; 
     max-width: calc(100vw - 70px); 
-    z-index: 5000; 
+    z-index: 15000; 
     display: flex; 
     gap: 4px; 
     align-items: center; 
@@ -46,7 +46,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     transition: opacity 0.3s ease; 
 }
 
-/* Botones flotantes compactos de 30px para evitar traslapes horizontales */
+/* Botones flotantes compactos de 30px */
 .btn-flotante { 
     width: 30px; 
     height: 30px; 
@@ -112,7 +112,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #tooltip-texto { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.85); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 #btn-menu-circular:hover #tooltip-texto, #btn-menu-circular.activo-tactil #tooltip-texto { opacity: 1; visibility: visible; }
 
-#selector-video-wrapper { display: none; position: absolute; left: 40px; top: 0; background: rgba(0, 0, 0, 0.9); padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 8px; min-width: 200px; z-index: 5001; }
+#selector-video-wrapper { display: none; position: absolute; left: 40px; top: 0; background: rgba(0, 0, 0, 0.9); padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 8px; min-width: 200px; z-index: 15001; }
 #selector-video { padding: 8px; font-size: 14px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; cursor: pointer; }
 #input-archivo-oculto { display: none; }
 
@@ -120,9 +120,9 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #btn-agregar-archivo { background: #1b4d3e; }
 #btn-borrar-item { background: #6c2222; }
 
-#aviso-premium { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 9999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
+#aviso-premium { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 19999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
 
-/* Selector de color aislado e independiente en la esquina derecha */
+/* Selector de color en la derecha */
 #btn-color { 
     position: absolute; 
     top: 15px; 
@@ -132,7 +132,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     border-radius: 50%; 
     background-color: #00ff00; 
     cursor: pointer; 
-    z-index: 5001; 
+    z-index: 15001; 
     opacity: 0.8; 
     border: 2px solid #ffffff; 
     box-shadow: 0 0 8px rgba(0,0,0,0.8); 
@@ -146,17 +146,74 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     background: rgba(0,0,0,0.9); 
     padding: 8px; 
     border-radius: 8px; 
-    z-index: 5002; 
+    z-index: 15002; 
     flex-direction: column; 
     gap: 10px; 
 }
 .opcion-color { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 
+/* Panel de Sensibilidad Croma Inferior */
+#panel-sensibilidad {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15000;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 8px 18px;
+    border-radius: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s;
+}
+#panel-sensibilidad label { font-size: 12px; white-space: nowrap; }
+#panel-sensibilidad input[type=range] { width: 110px; accent-color: #00ff00; }
+
 #video-camara { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; background-color: #000; }
 #canvas-camara-ia { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 2; display: none; }
 #video-multimedia, #imagen-fuente-oculta { display: none; }
+
 #capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; display: flex; justify-content: center; align-items: center; }
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
+
+/* Estilos para capas de imágenes adicionales */
+.chroma-layer-extra {
+    position: absolute;
+    top: 25%;
+    left: 20%;
+    z-index: 11;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    pointer-events: auto;
+    border: 2px transparent dashed;
+}
+.chroma-layer-extra.selected { border-color: #00ff00; }
+.chroma-layer-extra canvas { display: block; width: 100%; height: auto; }
+
+.btn-close-layer {
+    display: none;
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background-color: #ff3333;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    z-index: 25;
+}
+.chroma-layer-extra.selected .btn-close-layer { display: block; }
 </style>
 </head>
 <body>
@@ -188,7 +245,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
             <li><strong>🔄 Cambiar Cámara:</strong> Alterna entre cámara frontal y trasera.</li>
             <li><strong>👁️ Ocultar/Mostrar Controles:</strong> Oculta botones para limpiar la toma.</li>
             <li><strong>🔴 Grabar Video:</strong> Graba pantalla integrando audio y video.</li>
-            <li><strong>🎨 Filtro de Croma:</strong> Selecciona Verde, Azul o Negro.</li>
+            <li><strong>🎨 Filtro de Croma:</strong> Selecciona Verde, Azul o Negro y ajusta la sensibilidad abajo.</li>
         </ul>
         <button id="btn-cerrar-ayuda" class="btn-cerrar-modal">Cerrar Ayuda</button>
     </div>
@@ -224,13 +281,19 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
         <div id="btn-grabar" title="Grabar Video"></div>
     </div>
 
-    <input type="file" id="input-archivo-oculto" accept="video/mp4,image/gif,image/webp">
+    <input type="file" id="input-archivo-oculto" accept="video/mp4,image/gif,image/webp,image/*">
 
     <div id="btn-color"></div>
     <div id="menu-colores">
         <div class="opcion-color" data-color="verde" style="background-color: #00ff00;" title="Verde"></div>
         <div class="opcion-color" data-color="azul" style="background-color: #0000ff;" title="Azul"></div>
         <div class="opcion-color" data-color="negro" style="background-color: #111; border: 1px solid #777;" title="Negro"></div>
+    </div>
+
+    <!-- Barra de sensibilidad verde -->
+    <div id="panel-sensibilidad" class="control-ocultable">
+        <label for="toleranceRange">Sensibilidad Verde:</label>
+        <input type="range" id="toleranceRange" min="0.8" max="2.0" step="0.05" value="1.2">
     </div>
 
     <video id="video-camara" autoplay playsinline muted></video>
@@ -279,6 +342,7 @@ const videoMultimedia = document.getElementById('video-multimedia');
 const imagenFuenteOculta = document.getElementById('imagen-fuente-oculta');
 const canvas = document.getElementById('canvas-overlay');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const capaEfectoContainer = document.getElementById('capa-efecto-container');
 
 const btnIniciar = document.getElementById('btn-iniciar');
 const inputEmailUsuario = document.getElementById('input-email-usuario');
@@ -310,6 +374,7 @@ const btnGrabar = document.getElementById('btn-grabar');
 const btnColor = document.getElementById('btn-color');
 const menuColores = document.getElementById('menu-colores');
 const opcionesColor = document.querySelectorAll('.opcion-color');
+const toleranceRange = document.getElementById('toleranceRange');
 
 const btnCambiarCamara = document.getElementById('btn-cambiar-camara');
 const btnToggleInterfaz = document.getElementById('btn-toggle-interfaz');
@@ -329,6 +394,9 @@ let arrastrando = false;
 let startX = 0, startY = 0;
 let distanciaInicialPellizco = 0;
 
+let layerCounter = 0;
+let activeLayer = null;
+
 let mediaRecorder;
 let fragmentosVideo = [];
 let estaGrabando = false;
@@ -343,7 +411,6 @@ function mostrarAviso() {
     setTimeout(() => { avisoPremium.style.display = 'none'; }, 5000);
 }
 
-// Inicialización optimizada de MediaPipe Selfie Segmentation (Model 0 = Selfie/General)
 function inicializarIA() {
     selfieSegmentation = new SelfieSegmentation({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
@@ -403,7 +470,6 @@ btnCerrarTerminos.addEventListener('click', () => { modalTerminos.style.display 
 btnAyuda.addEventListener('click', (e) => { e.stopPropagation(); modalAyuda.style.display = 'flex'; });
 btnCerrarAyuda.addEventListener('click', () => { modalAyuda.style.display = 'none'; });
 
-// Lógica del ojito: Permanece siempre activo y alterna iconos (👁️ / 🙈)
 btnToggleInterfaz.addEventListener('click', (e) => {
     e.stopPropagation();
     interfazOculta = !interfazOculta;
@@ -445,6 +511,7 @@ document.addEventListener('click', () => {
     btnMenuCircular.classList.remove('activo-tactil');
     menuColores.style.display = 'none';
     if (!interfazOculta) btnColor.style.opacity = '0.8';
+    deselectAllLayers();
 });
 
 selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
@@ -480,7 +547,8 @@ inputArchivoOculto.addEventListener('change', (e) => {
     if (!archivo) return;
     const nombreArchivo = archivo.name;
     const esGif = nombreArchivo.toLowerCase().endsWith('.gif') || archivo.type === 'image/gif';
-    const tipoDetectado = esGif ? 'gif' : 'video';
+    const esImagen = archivo.type.startsWith('image/') && !esGif;
+    const tipoDetectado = esGif ? 'gif' : (esImagen ? 'imagen' : 'video');
     let descripcionCustom = prompt("Escribe el nombre descriptivo para este efecto:", nombreArchivo);
     if (!descripcionCustom || descripcionCustom.trim() === "") descripcionCustom = nombreArchivo;
 
@@ -571,7 +639,149 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => { arrastrando = false; });
 
-// Control unificado de grabación (Círculo -> Cuadrado -> Restauración de interfaz)
+/* --- LÓGICA DE CAPAS IMAGEN EXTRA Y SENSIBILIDAD --- */
+
+toleranceRange.addEventListener('input', function() {
+    if (activeLayer && activeLayer.reprocessChroma) {
+        activeLayer.reprocessChroma();
+    }
+});
+
+function deselectAllLayers() {
+    document.querySelectorAll('.chroma-layer-extra').forEach(l => l.classList.remove('selected'));
+    activeLayer = null;
+}
+
+function selectLayer(layer) {
+    deselectAllLayers();
+    layer.classList.add('selected');
+    activeLayer = layer;
+}
+
+function addChromaImageLayerExtra(imageSrc) {
+    layerCounter++;
+    const layerDiv = document.createElement('div');
+    layerDiv.className = 'chroma-layer-extra selected';
+    layerDiv.id = 'layer-' + layerCounter;
+
+    layerDiv.dataset.scale = "1.0";
+    layerDiv.dataset.baseWidth = "220";
+
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'btn-close-layer';
+    closeBtn.innerText = '✕';
+    closeBtn.onclick = function(e) {
+        e.stopPropagation();
+        layerDiv.remove();
+        if (activeLayer === layerDiv) activeLayer = null;
+    };
+
+    const canvasExtra = document.createElement('canvas');
+    const ctxExtra = canvasExtra.getContext('2d', { willReadFrequently: true });
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = imageSrc;
+
+    layerDiv.reprocessChroma = function() {
+        if (!img.complete) return;
+        canvasExtra.width = img.width || 300;
+        canvasExtra.height = img.height || 300;
+        ctxExtra.drawImage(img, 0, 0, canvasExtra.width, canvasExtra.height);
+
+        const tolerance = parseFloat(toleranceRange.value);
+        const imgData = ctxExtra.getImageData(0, 0, canvasExtra.width, canvasExtra.height);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            if (colorFiltro === 'verde') {
+                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) data[i + 3] = 0;
+            } else if (colorFiltro === 'azul' && esSuperUsuario) {
+                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) data[i + 3] = 0;
+            } else if (colorFiltro === 'negro' && esSuperUsuario) {
+                if (r < 60 && g < 60 && b < 60) data[i + 3] = 0;
+            }
+        }
+        ctxExtra.putImageData(imgData, 0, 0);
+    };
+
+    img.onload = function() {
+        layerDiv.style.width = layerDiv.dataset.baseWidth + 'px';
+        layerDiv.reprocessChroma();
+    };
+
+    layerDiv.appendChild(closeBtn);
+    layerDiv.appendChild(canvasExtra);
+    capaEfectoContainer.appendChild(layerDiv);
+
+    selectLayer(layerDiv);
+    makeInteractableLayer(layerDiv);
+}
+
+function makeInteractableLayer(element) {
+    let isDraggingLayer = false;
+    let startXLayer, startYLayer, initialLeft, initialTop;
+    let initialPinchDistance = null;
+    let initialScale = 1;
+
+    element.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectLayer(element);
+    });
+
+    element.addEventListener('touchstart', handleStart, {passive: false});
+    element.addEventListener('mousedown', handleStart);
+
+    function handleStart(e) {
+        selectLayer(element);
+
+        if (e.touches && e.touches.length === 2) {
+            isDraggingLayer = false;
+            initialPinchDistance = calcularDistanciaTactil(e.touches[0], e.touches[1]);
+            initialScale = parseFloat(element.dataset.scale);
+        } else {
+            isDraggingLayer = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            startXLayer = clientX;
+            startYLayer = clientY;
+            initialLeft = element.offsetLeft;
+            initialTop = element.offsetTop;
+        }
+
+        document.addEventListener('touchmove', handleMove, {passive: false});
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchend', handleEnd);
+        document.addEventListener('mouseup', handleEnd);
+    }
+
+    function handleMove(e) {
+        if (e.touches && e.touches.length === 2 && initialPinchDistance) {
+            e.preventDefault();
+            const currentDistance = calcularDistanciaTactil(e.touches[0], e.touches[1]);
+            const scaleFactor = currentDistance / initialPinchDistance;
+            let newScale = Math.min(Math.max(0.4, initialScale * scaleFactor), 4.0);
+            
+            element.dataset.scale = newScale;
+            const baseWidth = parseFloat(element.dataset.baseWidth);
+            element.style.width = (baseWidth * newScale) + 'px';
+        } else if (isDraggingLayer) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            element.style.left = (initialLeft + (clientX - startXLayer)) + 'px';
+            element.style.top = (initialTop + (clientY - startYLayer)) + 'px';
+        }
+    }
+
+    function handleEnd(e) {
+        isDraggingLayer = false;
+        if (e.touches && e.touches.length < 2) {
+            initialPinchDistance = null;
+        }
+    }
+}
+
+// Control unificado de grabación
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
         let nombreSugerido = `ChromaCam_${Date.now()}`;
@@ -592,6 +802,13 @@ btnGrabar.addEventListener('click', () => {
             const fuenteCamara = modoCamaraIA ? canvasCamaraIA : videoCamara;
             ctxGrabacion.drawImage(fuenteCamara, 0, 0, canvasGrabacion.width, canvasGrabacion.height);
             ctxGrabacion.drawImage(canvas, 0, 0, canvasGrabacion.width, canvasGrabacion.height);
+
+            // Renderizar capas de imágenes extras
+            document.querySelectorAll('.chroma-layer-extra canvas').forEach(c => {
+                const layer = c.parentElement;
+                ctxGrabacion.drawImage(c, layer.offsetLeft, layer.offsetTop, layer.offsetWidth, layer.offsetHeight);
+            });
+
             requestAnimationFrame(dibujarFrameParaGrabacion);
         }
         dibujarFrameParaGrabacion();
@@ -671,6 +888,10 @@ opcionesColor.forEach(opcion => {
         btnColor.style.backgroundColor = getComputedStyle(e.target).backgroundColor;
         menuColores.style.display = 'none';
         btnColor.style.opacity = '0.8';
+
+        document.querySelectorAll('.chroma-layer-extra').forEach(l => {
+            if (l.reprocessChroma) l.reprocessChroma();
+        });
     });
 });
 
@@ -687,6 +908,10 @@ function cargarArchivoSeleccionado() {
         btnColor.style.display = interfazOculta ? 'none' : 'block';
         imagenFuenteOculta.src = archivoUrl;
         imagenFuenteOculta.onload = () => { procesarChromaKeyGIF(); };
+    } else if (tipoActual === 'imagen') {
+        videoMultimedia.pause();
+        btnColor.style.display = interfazOculta ? 'none' : 'block';
+        addChromaImageLayerExtra(archivoUrl);
     } else {
         imagenFuenteOculta.src = "";
         btnColor.style.display = interfazOculta ? 'none' : 'block';
@@ -814,12 +1039,19 @@ function procesarChromaKeyVideo() {
         ctx.drawImage(videoMultimedia, 0, 0, canvas.width, canvas.height);
         let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let totalPixeles = frame.data.length / 4;
+        let tolerance = parseFloat(toleranceRange.value);
 
         for (let i = 0; i < totalPixeles; i++) {
             let r = frame.data[i * 4 + 0], g = frame.data[i * 4 + 1], b = frame.data[i * 4 + 2];
-            if (colorFiltro === 'verde') { if (g > 90 && r < 110 && b < 110) frame.data[i * 4 + 3] = 0; } 
-            else if (colorFiltro === 'azul' && esSuperUsuario) { if (b > 90 && r < 110 && g < 110) frame.data[i * 4 + 3] = 0; } 
-            else if (colorFiltro === 'negro' && esSuperUsuario) { if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; }
+            if (colorFiltro === 'verde') { 
+                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+            } 
+            else if (colorFiltro === 'azul' && esSuperUsuario) { 
+                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+            } 
+            else if (colorFiltro === 'negro' && esSuperUsuario) { 
+                if (r < 60 && g < 60 && b < 60) frame.data[i * 4 + 3] = 0; 
+            }
         }
         ctx.putImageData(frame, 0, 0);
     }
@@ -833,12 +1065,19 @@ function procesarChromaKeyGIF() {
         ctx.drawImage(imagenFuenteOculta, 0, 0, canvas.width, canvas.height);
         let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let totalPixeles = frame.data.length / 4;
+        let tolerance = parseFloat(toleranceRange.value);
 
         for (let i = 0; i < totalPixeles; i++) {
             let r = frame.data[i * 4 + 0], g = frame.data[i * 4 + 1], b = frame.data[i * 4 + 2];
-            if (colorFiltro === 'verde') { if (g > 90 && r < 110 && b < 110) frame.data[i * 4 + 3] = 0; } 
-            else if (colorFiltro === 'azul' && esSuperUsuario) { if (b > 90 && r < 110 && g < 110) frame.data[i * 4 + 3] = 0; } 
-            else if (colorFiltro === 'negro' && esSuperUsuario) { if (r < 50 && g < 50 && b < 50) frame.data[i * 4 + 3] = 0; }
+            if (colorFiltro === 'verde') { 
+                if (g > 50 && g > r * (2.2 - tolerance) && g > b * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+            } 
+            else if (colorFiltro === 'azul' && esSuperUsuario) { 
+                if (b > 50 && b > r * (2.2 - tolerance) && b > g * (2.2 - tolerance)) frame.data[i * 4 + 3] = 0; 
+            } 
+            else if (colorFiltro === 'negro' && esSuperUsuario) { 
+                if (r < 60 && g < 60 && b < 60) frame.data[i * 4 + 3] = 0; 
+            }
         }
         ctx.putImageData(frame, 0, 0);
         animacionGifId = requestAnimationFrame(procesarChromaKeyGIF);
