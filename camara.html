@@ -584,7 +584,6 @@ inputArchivoOculto.addEventListener('change', (e) => {
     actualizarSelect();
     selectorVideo.selectedIndex = selectorVideo.options.length - 1;
     
-    // Agregar directamente a la pantalla como nueva capa sin cerrar la anterior
     addChromaLayerExtra(urlLocal, tipoDetectado);
     selectorVideoWrapper.style.display = 'none';
 });
@@ -656,7 +655,7 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
-/* --- LÓGICA DE CAPAS EXTRA ACUMULATIVAS (MULTICAPA) --- */
+/* --- LÓGICA DE CAPAS EXTRA ACUMULATIVAS CON AUDIO --- */
 
 toleranceRange.addEventListener('input', function() {
     if (activeLayer && activeLayer.reprocessChroma) {
@@ -732,14 +731,18 @@ function addChromaLayerExtra(sourceUrl, tipo) {
         layerDiv.appendChild(closeBtn);
         layerDiv.appendChild(canvasExtra);
     } else {
-        // En caso de video extra acumulativo
+        // Video acumulativo con reproducción de audio
         const vExtra = document.createElement('video');
         vExtra.src = sourceUrl;
         vExtra.autoplay = true;
         vExtra.loop = true;
-        vExtra.muted = true;
+        vExtra.muted = false; // Audio Habilitado
         vExtra.playsInline = true;
-        vExtra.play().catch(() => {});
+        vExtra.play().catch(err => {
+            // Reintento con mute de emergencia si el navegador restringe la autorreproducción
+            vExtra.muted = true;
+            vExtra.play();
+        });
 
         let renderingVideo = true;
         function processVideoFrame() {
@@ -972,7 +975,6 @@ function cargarArchivoSeleccionado() {
     const archivoUrl = selectedOption.value;
     tipoActual = selectedOption.getAttribute('data-tipo');
 
-    // Agregar acumulativamente
     addChromaLayerExtra(archivoUrl, tipoActual);
 }
 
