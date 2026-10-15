@@ -31,7 +31,6 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #contenido-modal h3, #contenido-ayuda h3 { margin-top: 0; color: #28a745; font-size: 18px; }
 .btn-cerrar-modal { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 15px; cursor: pointer; float: right; font-weight: bold; }
 
-/* Panel de controles con margen de seguridad dinámico a la derecha */
 #panel-controles { 
     position: absolute; 
     top: 15px; 
@@ -46,7 +45,6 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
     transition: opacity 0.3s ease; 
 }
 
-/* Botones flotantes compactos de 30px */
 .btn-flotante { 
     width: 30px; 
     height: 30px; 
@@ -69,7 +67,6 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #btn-mover-efecto.activo { background-color: #28a745; border-color: #fff; }
 #btn-cambiar-camara::after { content: "🔄"; font-size: 13px; }
 
-/* Botón Tricolor de Cámara Croma IA */
 #btn-camara-ia { 
     background: linear-gradient(135deg, #00ff00 0%, #0000ff 50%, #111111 100%); 
     border: 1.5px solid #ffffff; 
@@ -112,17 +109,17 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #tooltip-texto { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.85); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 #btn-menu-circular:hover #tooltip-texto, #btn-menu-circular.activo-tactil #tooltip-texto { opacity: 1; visibility: visible; }
 
-#selector-video-wrapper { display: none; position: absolute; left: 40px; top: 0; background: rgba(0, 0, 0, 0.9); padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 8px; min-width: 200px; z-index: 15001; }
+#selector-video-wrapper { display: none; position: absolute; left: 40px; top: 0; background: rgba(0, 0, 0, 0.9); padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 8px; min-width: 210px; z-index: 15001; }
 #selector-video { padding: 8px; font-size: 14px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; cursor: pointer; }
 #input-archivo-oculto { display: none; }
 
-.btn-accion-menu { color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; text-align: center; }
+.btn-accion-menu { color: white; border: none; padding: 7px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; text-align: center; font-weight: bold; }
+#btn-descargar-demo { background: #007bff; }
 #btn-agregar-archivo { background: #1b4d3e; }
 #btn-borrar-item { background: #6c2222; }
 
-#aviso-premium { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 19999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
+#aviso-premium { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px; border-radius: 8px; font-size: 13px; z-index: 19999; display: none; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.6); line-height: 1.4; }
 
-/* Selector de color en la derecha */
 #btn-color { 
     position: absolute; 
     top: 15px; 
@@ -152,7 +149,6 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 }
 .opcion-color { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 
-/* Panel de Sensibilidad Croma Inferior */
 #panel-sensibilidad {
     position: fixed;
     bottom: 20px;
@@ -177,14 +173,16 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
 #canvas-camara-ia { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 2; display: none; }
 #video-multimedia, #imagen-fuente-oculta { display: none; }
 
-#capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; display: flex; justify-content: center; align-items: center; }
+#capa-efecto-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; }
+
+/* Lienzo del video principal */
 #canvas-overlay { width: 100vw; height: 100vh; max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: auto; touch-action: none; cursor: default; }
 
-/* Estilos para capas de imágenes adicionales */
+/* Capas independientes extra */
 .chroma-layer-extra {
     position: absolute;
-    top: 25%;
-    left: 20%;
+    top: 20%;
+    left: 15%;
     z-index: 11;
     cursor: move;
     user-select: none;
@@ -239,13 +237,13 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
         <h3>📖 Manual de Ayuda y Funcionalidades</h3>
         <p>Bienvenido a <strong>Chroma Cam FX</strong>. Guía de uso:</p>
         <ul>
-            <li><strong>⚙️ Menú de Efectos:</strong> Selecciona el video o GIF para proyectar sobre tu cámara.</li>
-            <li><strong>📷 Cámara Croma IA (Tricolor):</strong> Activa la IA para detectar personas y remover el fondo en vivo.</li>
-            <li><strong>✋ Mover y Escalar:</strong> Mueve y haz zoom con el gesto de pellizco (🤏).</li>
+            <li><strong>⚙️ Menú de Efectos:</strong> Selecciona o descarga demostraciones.</li>
+            <li><strong>📷 Cámara Croma IA (Tricolor):</strong> Activa la IA para remover el fondo en vivo.</li>
+            <li><strong>✋ Mover y Escalar:</strong> En versión PRO puedes escalar con pellizco (🤏).</li>
             <li><strong>🔄 Cambiar Cámara:</strong> Alterna entre cámara frontal y trasera.</li>
             <li><strong>👁️ Ocultar/Mostrar Controles:</strong> Oculta botones para limpiar la toma.</li>
             <li><strong>🔴 Grabar Video:</strong> Graba pantalla integrando audio y video.</li>
-            <li><strong>🎨 Filtro de Croma:</strong> Selecciona Verde, Azul o Negro y ajusta la sensibilidad abajo.</li>
+            <li><strong>🎨 Filtro de Croma:</strong> Ajusta tolerancia y color.</li>
         </ul>
         <button id="btn-cerrar-ayuda" class="btn-cerrar-modal">Cerrar Ayuda</button>
     </div>
@@ -268,6 +266,7 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
             <span id="tooltip-texto">Menú de Efectos</span>
             <div id="selector-video-wrapper">
                 <select id="selector-video"></select>
+                <button id="btn-descargar-demo" class="btn-accion-menu">📥 Descargar Demo</button>
                 <button id="btn-agregar-archivo" class="btn-accion-menu">➕ Agregar archivo local</button>
                 <button id="btn-borrar-item" class="btn-accion-menu">🗑️ Borrar seleccionado</button>
             </div>
@@ -290,7 +289,6 @@ html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height
         <div class="opcion-color" data-color="negro" style="background-color: #111; border: 1px solid #777;" title="Negro"></div>
     </div>
 
-    <!-- Barra de sensibilidad verde -->
     <div id="panel-sensibilidad" class="control-ocultable">
         <label for="toleranceRange">Sensibilidad Verde:</label>
         <input type="range" id="toleranceRange" min="0.8" max="2.0" step="0.05" value="1.2">
@@ -320,7 +318,7 @@ function obtenerDispositivoId() {
     return devId;
 }
 
-const MULTIMEDIA_DEFAULT = [{ nombre: "Efecto: Espíritu Espectral", archivo: "espiritu_espectral.mp4", tipo: "video" }];
+const MULTIMEDIA_DEFAULT = [{ nombre: "Efecto: La Llorona (Demo)", archivo: "espiritu_espectral.mp4", tipo: "video" }];
 
 function obtenerBaseDatos() {
     const guardado = localStorage.getItem('efectos_ar_db');
@@ -357,6 +355,7 @@ const btnRechazarDispositivo = document.getElementById('btn-rechazar-dispositivo
 
 const btnMenuCircular = document.getElementById('btn-menu-circular');
 const selectorVideoWrapper = document.getElementById('selector-video-wrapper');
+const btnDescargarDemo = document.getElementById('btn-descargar-demo');
 const btnAgregarArchivo = document.getElementById('btn-agregar-archivo');
 const btnBorrarItem = document.getElementById('btn-borrar-item');
 const inputArchivoOculto = document.getElementById('input-archivo-oculto');
@@ -406,7 +405,8 @@ let listaCamaras = [];
 let indiceCamaraActual = 0;
 let interfazOculta = false;
 
-function mostrarAviso() {
+function mostrarAviso(mensaje = "⚠️ Función bloqueada en modo básico.") {
+    avisoPremium.innerText = mensaje;
     avisoPremium.style.display = 'block';
     setTimeout(() => { avisoPremium.style.display = 'none'; }, 5000);
 }
@@ -516,6 +516,33 @@ document.addEventListener('click', () => {
 
 selectorVideoWrapper.addEventListener('click', (e) => e.stopPropagation());
 
+/* Descarga de demostración segura desde GitHub */
+btnDescargarDemo.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const urlDemoImg = 'https://adr8617.github.io/AR_Chroma/Img/llorona_demo.png';
+    try {
+        btnDescargarDemo.innerText = "⏳ Descargando...";
+        const resp = await fetch(urlDemoImg);
+        if (!resp.ok) throw new Error("No encontrada");
+        const blob = await resp.blob();
+        const urlBlobLocal = URL.createObjectURL(blob);
+
+        listaMultimedia.push({ nombre: "Demo: La Llorona (Croma)", archivo: urlBlobLocal, tipo: "imagen" });
+        guardarBaseDatos(listaMultimedia);
+        actualizarSelect();
+        selectorVideo.selectedIndex = selectorVideo.options.length - 1;
+        
+        // Auto-ejecutar apertura
+        cargarArchivoSeleccionado();
+        btnDescargarDemo.innerText = "📥 Descargar Demo";
+        selectorVideoWrapper.style.display = 'none';
+        alert("¡Demo descargada e integrada con éxito!");
+    } catch (err) {
+        btnDescargarDemo.innerText = "📥 Descargar Demo";
+        alert("Aviso: No se pudo conectar a la carpeta de demostraciones de GitHub. Verifica tu red.");
+    }
+});
+
 btnAgregarArchivo.addEventListener('click', (e) => {
     e.stopPropagation();
     if (!esSuperUsuario && listaMultimedia.length >= 2) {
@@ -582,12 +609,15 @@ function calcularDistanciaTactil(t1, t2) {
 }
 
 canvas.addEventListener('touchstart', (e) => {
-    if (!esSuperUsuario) return;
     if (e.touches.length === 2) {
+        if (!esSuperUsuario) {
+            mostrarAviso("función zoom deshabilitada en versiones de prueba");
+            return;
+        }
         distanciaInicialPellizco = calcularDistanciaTactil(e.touches[0], e.touches[1]);
         arrastrando = false;
         e.preventDefault();
-    } else if (e.touches.length === 1 && modoMoverActivo) {
+    } else if (e.touches.length === 1 && modoMoverActivo && esSuperUsuario) {
         arrastrando = true;
         startX = e.touches[0].clientX - posX;
         startY = e.touches[0].clientY - posY;
@@ -596,8 +626,11 @@ canvas.addEventListener('touchstart', (e) => {
 }, { passive: false });
 
 canvas.addEventListener('touchmove', (e) => {
-    if (!esSuperUsuario) return;
     if (e.touches.length === 2) {
+        if (!esSuperUsuario) {
+            mostrarAviso("función zoom deshabilitada en versiones de prueba");
+            return;
+        }
         const distanciaActual = calcularDistanciaTactil(e.touches[0], e.touches[1]);
         if (distanciaInicialPellizco > 0) {
             let factor = distanciaActual / distanciaInicialPellizco;
@@ -609,7 +642,7 @@ canvas.addEventListener('touchmove', (e) => {
             distanciaInicialPellizco = distanciaActual;
         }
         e.preventDefault();
-    } else if (e.touches.length === 1 && arrastrando && modoMoverActivo) {
+    } else if (e.touches.length === 1 && arrastrando && modoMoverActivo && esSuperUsuario) {
         posX = e.touches[0].clientX - startX;
         posY = e.touches[0].clientY - startY;
         aplicarTransformacion();
@@ -622,24 +655,7 @@ canvas.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) arrastrando = false;
 });
 
-canvas.addEventListener('mousedown', (e) => {
-    if (!modoMoverActivo || !esSuperUsuario) return;
-    arrastrando = true;
-    startX = e.clientX - posX;
-    startY = e.clientY - posY;
-    e.preventDefault();
-});
-
-window.addEventListener('mousemove', (e) => {
-    if (!arrastrando || !modoMoverActivo || !esSuperUsuario) return;
-    posX = e.clientX - startX;
-    posY = e.clientY - startY;
-    aplicarTransformacion();
-});
-
-window.addEventListener('mouseup', () => { arrastrando = false; });
-
-/* --- LÓGICA DE CAPAS IMAGEN EXTRA Y SENSIBILIDAD --- */
+/* Capas Multicapa de Imágenes */
 
 toleranceRange.addEventListener('input', function() {
     if (activeLayer && activeLayer.reprocessChroma) {
@@ -665,7 +681,7 @@ function addChromaImageLayerExtra(imageSrc) {
     layerDiv.id = 'layer-' + layerCounter;
 
     layerDiv.dataset.scale = "1.0";
-    layerDiv.dataset.baseWidth = "220";
+    layerDiv.dataset.baseWidth = "260";
 
     const closeBtn = document.createElement('div');
     closeBtn.className = 'btn-close-layer';
@@ -736,6 +752,10 @@ function makeInteractableLayer(element) {
         selectLayer(element);
 
         if (e.touches && e.touches.length === 2) {
+            if (!esSuperUsuario) {
+                mostrarAviso("función zoom deshabilitada en versiones de prueba");
+                return;
+            }
             isDraggingLayer = false;
             initialPinchDistance = calcularDistanciaTactil(e.touches[0], e.touches[1]);
             initialScale = parseFloat(element.dataset.scale);
@@ -757,6 +777,10 @@ function makeInteractableLayer(element) {
 
     function handleMove(e) {
         if (e.touches && e.touches.length === 2 && initialPinchDistance) {
+            if (!esSuperUsuario) {
+                mostrarAviso("función zoom deshabilitada en versiones de prueba");
+                return;
+            }
             e.preventDefault();
             const currentDistance = calcularDistanciaTactil(e.touches[0], e.touches[1]);
             const scaleFactor = currentDistance / initialPinchDistance;
@@ -781,7 +805,7 @@ function makeInteractableLayer(element) {
     }
 }
 
-// Control unificado de grabación
+// Grabación
 btnGrabar.addEventListener('click', () => {
     if (!estaGrabando) { 
         let nombreSugerido = `ChromaCam_${Date.now()}`;
@@ -803,7 +827,6 @@ btnGrabar.addEventListener('click', () => {
             ctxGrabacion.drawImage(fuenteCamara, 0, 0, canvasGrabacion.width, canvasGrabacion.height);
             ctxGrabacion.drawImage(canvas, 0, 0, canvasGrabacion.width, canvasGrabacion.height);
 
-            // Renderizar capas de imágenes extras
             document.querySelectorAll('.chroma-layer-extra canvas').forEach(c => {
                 const layer = c.parentElement;
                 ctxGrabacion.drawImage(c, layer.offsetLeft, layer.offsetTop, layer.offsetWidth, layer.offsetHeight);
@@ -895,6 +918,7 @@ opcionesColor.forEach(opcion => {
     });
 });
 
+/* Selección de archivos acumulativa */
 function cargarArchivoSeleccionado() {
     if (selectorVideo.options.length === 0) return;
     const selectedOption = selectorVideo.options[selectorVideo.selectedIndex];
@@ -909,15 +933,22 @@ function cargarArchivoSeleccionado() {
         imagenFuenteOculta.src = archivoUrl;
         imagenFuenteOculta.onload = () => { procesarChromaKeyGIF(); };
     } else if (tipoActual === 'imagen') {
-        videoMultimedia.pause();
         btnColor.style.display = interfazOculta ? 'none' : 'block';
         addChromaImageLayerExtra(archivoUrl);
     } else {
+        // Reproducción de video .mp4
         imagenFuenteOculta.src = "";
         btnColor.style.display = interfazOculta ? 'none' : 'block';
         videoMultimedia.src = archivoUrl;
         videoMultimedia.muted = false;
-        videoMultimedia.play().catch(() => {});
+        videoMultimedia.play().then(() => {
+            if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
+        }).catch(err => {
+            // Intento con mute para permitir reproducción automática
+            videoMultimedia.muted = true;
+            videoMultimedia.play();
+            if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
+        });
     }
 }
 
@@ -1011,7 +1042,9 @@ async function lanzarApp() {
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
 
             actualizarSelect();
-            cargarArchivoSeleccionado();
+            if (esSuperUsuario) {
+                cargarArchivoSeleccionado();
+            }
         };
     } catch (err) {
         mensajeError.innerText = "Error: No se pudo acceder a la cámara o permisos denegados.";
@@ -1028,14 +1061,18 @@ window.addEventListener('resize', () => {
     }
 });
 
-videoMultimedia.addEventListener('loadedmetadata', () => {
-    canvas.width = videoMultimedia.videoWidth;
-    canvas.height = videoMultimedia.videoHeight;
+videoMultimedia.addEventListener('loadeddata', () => {
+    canvas.width = videoMultimedia.videoWidth || 1280;
+    canvas.height = videoMultimedia.videoHeight || 720;
     if (!procesando) { procesando = true; procesarChromaKeyVideo(); }
 });
 
 function procesarChromaKeyVideo() {
     if (tipoActual === 'video' && !videoMultimedia.paused && !videoMultimedia.ended) {
+        if (videoMultimedia.videoWidth) {
+            canvas.width = videoMultimedia.videoWidth;
+            canvas.height = videoMultimedia.videoHeight;
+        }
         ctx.drawImage(videoMultimedia, 0, 0, canvas.width, canvas.height);
         let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let totalPixeles = frame.data.length / 4;
