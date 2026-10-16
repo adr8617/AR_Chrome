@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
 <title>Chroma Cam FX</title>
 <link rel="manifest" href="manifest.json">
 
@@ -11,8 +11,41 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
 <style>
-html, body { margin: 0; padding: 0; background-color: #000; width: 100vw; height: 100vh; overflow: hidden; font-family: sans-serif; -webkit-touch-callout: none; }
-#contenedor-principal { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; }
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body { 
+    margin: 0; 
+    padding: 0; 
+    background-color: #000; 
+    width: 100vw; 
+    height: 100vh; 
+    overflow: hidden; 
+    font-family: sans-serif; 
+    -webkit-touch-callout: none;
+    user-select: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overscroll-behavior: none;
+}
+
+#contenedor-principal { 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100vw; 
+    height: 100vh; 
+    overflow: hidden; 
+    background: #000; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
 
 #pantalla-inicio { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; gap: 15px; }
 #btn-iniciar { background-color: #28a745; color: white; font-weight: bold; font-size: 18px; padding: 12px 25px; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
@@ -308,8 +341,21 @@ const SUPER_USUARIOS = ["adr8617@gmail.com", "la.burbuj@gmail.com"];
 let esSuperUsuario = false;
 let audioContextGlobal = null;
 
+// Función para forzar pantalla completa inmersiva y ocultar la barra de navegación de Android
+function activarPantallaCompletaInmersiva() {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
+    }
+}
+
 // Forzar el encendido del sistema de audio de Chrome al tocar la pantalla
 function forzarDesbloqueoAudio() {
+    activarPantallaCompletaInmersiva();
     if (!audioContextGlobal) {
         audioContextGlobal = new (window.AudioContext || window.webkitAudioContext)();
     }
@@ -714,7 +760,6 @@ function addChromaLayerExtra(sourceUrl, tipo) {
     closeBtn.onclick = function(e) {
         e.stopPropagation();
 
-        // Destrucción total y detención de audio en memoria
         if (videoElementRef) {
             videoElementRef.pause();
             videoElementRef.muted = true;
@@ -1102,9 +1147,7 @@ async function lanzarApp() {
             pantallaInicio.style.display = 'none';
             panelControles.style.display = 'flex';
             
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) { elem.requestFullscreen().catch(() => {}); } 
-            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+            activarPantallaCompletaInmersiva();
 
             actualizarSelect();
             if (esSuperUsuario) {
@@ -1190,4 +1233,3 @@ btnIniciar.addEventListener('click', verificarAccesoSuperusuario);
 </script>
 </body>
 </html>
- 
